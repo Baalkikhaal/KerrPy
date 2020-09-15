@@ -1,0 +1,77 @@
+#text-font parameters
+text.usetex : True
+font.family : Arial
+font.size : 8.0
+font.weight : bold	
+
+#math-font parameters
+mathtext.fontset : cm
+mathtext.default : regular
+
+#figure parameters
+figure.facecolor : white
+figure.figsize : 3.0, 3.0
+figure.dpi : 300
+figure.autolayout : False
+figure.subplot.bottom : 0.20
+figure.subplot.left : 0.20
+figure.subplot.right : 0.98
+figure.subplot.top : 0.98
+
+#axes parameters
+axes.facecolor : white
+axes.labelweight : 900
+axes.labelsize : 12.0
+axes.linewidth : 1.0
+axes.titlesize : 12.0
+axes.titleweight : bold
+axes.xmargin : 0.05
+axes.ymargin : 0.05
+
+
+#lines parameters
+lines.linewidth : 1.5
+lines.markersize : 4
+lines.markerfacecolor : w
+
+#ticks parameters
+xtick.bottom : True
+xtick.top : True
+ytick.left : True
+ytick.right : True
+
+xtick.direction : in
+ytick.direction : in
+
+xtick.labelsize : 10.0
+ytick.labelsize : 10.0
+
+
+xtick.major.size : 4.5
+ytick.major.size : 4.5
+
+xtick.minor.visible : True
+ytick.minor.visible : True
+
+xtick.minor.size : 2.5
+ytick.minor.size : 2.5
+
+#######################legend parameters###################
+legend.loc : best
+legend.fontsize : 8
+
+#######################save parameters#####################
+savefig.dpi : 300.0
+
+#######################image parameters####################
+image.cmap : inferno # inferno , rocket'
+
+#######################axes property cycler################
+
+axes.prop_cycle : (cycler(color = ['4C72B0','C44E52', '55A868', '8172B2', 'CCB974', '64B5CD']) + cycler(marker = ['o', 's', 'v', '^', '<', '>']))
+
+
+
+
+
+
