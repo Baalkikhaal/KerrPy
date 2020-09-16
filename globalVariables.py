@@ -15,6 +15,8 @@ center_ROI      =   (511,672)  #center of the object to be identified
 adaptive_ROI    =   True    # flag for adaptive ROI
 aspr_ROI        =   2/3     # x_width/y_width for zooming out ROI.
                             # will be used if adaptive_ROI is True
+adaptive_ROI_seq =  [100,200,300,400,500,600,700,800,900,1000] 
+                            # sequence for zoom out
 kernel_gaussian =   5       # kernel for blurring !should be ODD
                             # typical values 3, 5, 7
 kernel_median   =   5       # kernel for median filtering ! should be ODD
