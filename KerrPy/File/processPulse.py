@@ -8,7 +8,8 @@ import os, os.path
 import numpy as np
 
 from globalVariables import debug, proc_dir, fits_folder, samplename
-from processOpenCV import processOpenCV
+
+from KerrPy.Image.processOpenCV import processOpenCV
 
 def savePulse(pulse_index, iter_index, exp_index, pulse, parent_dir_abs):
     """

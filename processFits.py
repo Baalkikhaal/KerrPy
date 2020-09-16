@@ -5,9 +5,9 @@ Created on Sat Sep 12 17:19:27 2020
 @author: fubar
 """
 
-from preConditioning import preConditioning
-from processControls import processControls
-from processSpace import processSpace
+from KerrPy.File.preConditioning import preConditioning
+from KerrPy.File.processControls import processControls
+from KerrPy.File.processSpace import processSpace
 
 
 def processFits():

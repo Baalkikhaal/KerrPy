@@ -11,21 +11,19 @@ import numpy as np
 import cv2
 
 
-
-from fitEllipse import FitEllipse_LeastSquares, ConfidenceInFit, OverlayRANSACFit
-
 from globalVariables import debug, deep_debug
 from globalVariables import proc_dir, imgs_folder, samplename
 from globalVariables import displayImages, saveImages
 from globalVariables import nucleation_down, center_ROI, adaptive_ROI
 from globalVariables import max_norm_err_sq
 
-from processROI import processROI
+from KerrPy.Image.processROI import processROI
 
-from routinesOpenCV import processImage, removeSpeckles, cannyEdgesAndContoursOpenCV
+from KerrPy.Image.routinesOpenCV import processImage, removeSpeckles, cannyEdgesAndContoursOpenCV
 
-from routinesMatplotLib import displayImage, displayNormError
+from KerrPy.Figure.routinesMatplotLib import displayImage, displayNormError
 
+from KerrPy.Image.fitEllipse import FitEllipse_LeastSquares, ConfidenceInFit, OverlayRANSACFit
 
 
 

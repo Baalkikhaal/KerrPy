@@ -9,7 +9,7 @@ import numpy as np
 
 from globalVariables import debug, proc_dir, fits_folder, samplename
 
-from processIteration import processIteration
+from KerrPy.File.processIteration import processIteration
 
 
 def saveExperiment(exp_index, experiment, parent_dir_abs):

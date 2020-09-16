@@ -13,6 +13,30 @@ from globalVariables import center_ROI
 from globalVariables import kernel_gaussian, kernel_median, kernel_speckless, kernel_speckless_second
 
 
+def readImage(img_file):
+    """
+        Read the img_file
+        with flag 0 (for grayscale)
+        
+        For more on imread modes/flags,
+        Reference
+        Imread modes
+        https://docs.opencv.org/trunk/d4/da8/group__imgcodecs.html#ga288b8b3da0892bd651fce07b3bbd3a56
+        
+        Return a 2D array
+        
+    """
+    #
+    img = cv2.imread(img_file, 0)
+    
+    return img
+
+def writeImage(img_file, img):
+    """
+        write img to img_file
+    """
+    cv2.imwrite(img_file, img)
+
 def originROI(ROI):
     """
         Return the origin of ROI 
@@ -21,12 +45,20 @@ def originROI(ROI):
     x_width, y_width    = ROI
     x_center, y_center  = center_ROI 
     
-    x_origin   = int(x_center -x_width/2)
-    y_origin   = int(y_center -y_width/2)
+    x_origin   = int(x_center - x_width//2)
+    y_origin   = int(y_center - y_width//2)
     
     origin = [x_origin, y_origin]
     
     return origin
+
+def cropImageDetails(img):
+    """
+        Strip the image details at the bottom.
+        The strip is width 44, 1344
+    """
+    return img[ 0:-44, :]
+
 
 def cropImage(img, ROI):
     """

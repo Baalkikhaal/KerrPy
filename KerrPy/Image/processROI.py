@@ -9,14 +9,14 @@ import os, os.path
 import numpy as np
 
 from globalVariables import debug, proc_dir, imgs_folder, samplename
-from globalVariables import center_ROI, aspr_ROI
+from globalVariables import center_ROI, aspr_ROI, adaptive_ROI_seq
 from globalVariables import displayImages, saveImages
 
-from routinesOpenCV import processImage
+from KerrPy.Image.routinesOpenCV import processImage
 
-from routinesSciPy import modalAnalysis
+from KerrPy.Statistics.routinesSciPy import modalAnalysis
 
-from routinesMatplotLib import displayImage, plotROIanalysis
+from KerrPy.Figure.routinesMatplotLib import displayImage, plotROIanalysis
 
 
 def saveROIAnalysis(pulse_index, iter_index, exp_index, plot_ROI_analysis_file, fig_ROI_analysis, parent_dir_abs):
@@ -97,6 +97,8 @@ def saveModalAnalysis(pulse_index, iter_index, exp_index, plot_modal_analysis_fi
     if not os.path.isdir(proc_dir_abs): os.mkdir(proc_dir_abs)
     
     img_dir_abs = os.path.abspath(os.path.join(proc_dir_abs,imgs_folder))
+    if not os.path.isdir(img_dir_abs): os.mkdir(img_dir_abs)
+
     img_root = os.path.abspath(os.path.join(img_dir_abs,samplename))
     if not os.path.isdir(img_root): os.mkdir(img_root)
     
@@ -146,7 +148,7 @@ def findAdaptiveROI(pulse_index, iter_index, exp_index, img, parent_dir_abs):
     If the roi is varied across the viewing area, an optimum relative strength can be found when the foreground and background area are nearly equal. This sets the value of adaptive threshold.
     Since we know certain properties about our object of interest like the approximate center of object and the aspect ratio of object area, the ROI can be set accordingly"""
 
-    array_x_ROI     =   np.array([100,200,300,400,500,600,700,800,900,1000])
+    array_x_ROI     =   np.array(adaptive_ROI_seq)
     array_y_ROI     =   (array_x_ROI*aspr_ROI).astype(int)
     n           =   array_x_ROI.size
     optimum_x_ROI    =  0
@@ -174,72 +176,27 @@ def findAdaptiveROI(pulse_index, iter_index, exp_index, img, parent_dir_abs):
                 saveModalAnalysis(pulse_index, iter_index, exp_index, plot_modal_analysis_file, fig_mod_analysis, parent_dir_abs)
         array_rel_strength[i]   =   rel_strength   
         array_maximum[i]        =   maximum
+    
     if displayImages:
         label = "xROI limited"
         fig_ROI_analysis = plotROIanalysis(array_y_ROI, array_rel_strength, label)
+        
         if saveImages:
             plot_ROI_analysis_file = "ROIAnalysis_xROIlimited"
             saveROIAnalysis(pulse_index, iter_index, exp_index, plot_ROI_analysis_file, fig_ROI_analysis, parent_dir_abs)
 
     #if all are unimodal distributions, then there either is no object to be found or object is beyond the ROI. This means that we need to check for bigger ROIs with progressive increase in y axis width
     max_rel_strength = np.max(array_rel_strength)
+    
     if debug: print('{}{:.2f}'.format('                max_rel_strength: ', max_rel_strength))
     
-    if max_rel_strength < 0.001:
-        optimum_x_ROI = 1000
-    else:
-        #find the optimum ROI from maximum of the relative strength vs ROI variation
-        optimum_x_ROI = array_x_ROI[array_rel_strength.argsort()[-1]]
-        optimum_y_ROI = array_y_ROI[array_rel_strength.argsort()[-1]]
-
-    #if optimum ROI is less than 1000, then it probably means that the object is not occluded and search for the ROI is completed. If the ROI is not optimized then we can increase the y_width of ROI further keeping the x_width to be constant at 1022
-    if optimum_x_ROI == 1000:
-        array_y_ROI  = np.array([800,900,1000,1100,1200,1300])
-        n           = array_y_ROI.size
-        array_x_ROI = np.ones(n,dtype = np.int32)*1022
-        #set the array for relative strengths and maxima positions for the unimodal or bimodal distributions.
-        array_rel_strength  =   np.zeros(n)
-        array_maximum       =   np.zeros((n,2))   
-        for i in np.arange(n):
- 
-            # custom ROI
-            ROI = [array_x_ROI[i], array_y_ROI[i]]
-        
-            # process the image
-            img_med = processImage(img, ROI)
-        
-            img_background = np.zeros([1022,1344], dtype = np.uint8)
-            img_restored = restoreROI(img_med, img_background, ROI)
-            maximum, rel_strength, fig_mod_analysis    =   modalAnalysis(img_med, img_restored, ROI)    #strength is zero if distribution is unimodal and close to zero if the foreground is very small compared to background or vice versa
-            if displayImages:
-                if saveImages:
-                    plot_modal_analysis_file = f"ModalAnalysis_xROI = {ROI[0]} yROI = {ROI[1]}"
-                    saveModalAnalysis(pulse_index, iter_index, exp_index, plot_modal_analysis_file, fig_mod_analysis, parent_dir_abs)
-            array_rel_strength[i]   =   rel_strength   
-            array_maximum[i]        =   maximum
-        if displayImages:
-            label = "yROI limited"
-            fig_ROI_analysis = plotROIanalysis(array_y_ROI, array_rel_strength, label)
-
-            if saveImages:
-                plot_ROI_analysis_file = "ROIAnalysis_yROIlimited"
-                saveROIAnalysis(pulse_index, iter_index, exp_index, plot_ROI_analysis_file, fig_ROI_analysis, parent_dir_abs)
-
-        max_rel_strength = np.max(array_rel_strength)
-        if max_rel_strength == 0:
-            optimum_x_ROI = 0
-            optimum_y_ROI = 0
-            if debug: print("                Discard image!")
-        #find the optimum ROI from maximum of the relative strength vs ROI variation
-        optimum_x_ROI = array_x_ROI[array_rel_strength.argsort()[-1]]
-        optimum_y_ROI = array_y_ROI[array_rel_strength.argsort()[-1]]
-        if optimum_y_ROI == 1300:
-            #so the whole image needs to be used for further processing
-            optimum_x_ROI = 1022
-            optimum_y_ROI = 1344
-        #proceed with further processing with optimum ROI
+    #find the optimum ROI from maximum of the relative strength vs ROI variation
+    optimum_x_ROI = array_x_ROI[array_rel_strength.argsort()[-1]]
+    optimum_y_ROI = array_y_ROI[array_rel_strength.argsort()[-1]]
     optimum_ROI = (optimum_x_ROI,optimum_y_ROI)
+    
     if debug: print(f"                Opt ROI: {optimum_ROI}")
+    
     return optimum_ROI
 
 
@@ -261,6 +218,42 @@ def restoreROI(cropimg, img_background, ROI):
         displayImage(img_restored, title)
     return img_restored
 
+def restoreColorROI(img_color, img_background, ROI):
+    """
+        Restore the colored crop image with ellipse fit
+        
+        onto the background
+    """
+    x_width = ROI[0]
+    y_width = ROI[1]
+    
+    img_color_restored = np.zeros((img_background.shape[0],img_background.shape[1],3), dtype=np.uint8)
+    
+    img_color_restored[:,:,0] = img_background 
+    img_color_restored[:,:,1] = img_background 
+    img_color_restored[:,:,2] = img_background 
+
+    
+    # origin of the ROI in absolute coordinates
+    x0 = center_ROI[0] - x_width//2
+    y0 = center_ROI[1] - y_width//2
+    
+    # find the points in the colored crop image which are non zero
+    
+    pnts = np.transpose(np.asarray(np.nonzero(img_color)))
+
+    # print(f"pnts: {pnts}")
+    
+    # loop over the non zero indices of the crop and appropriately,
+    # set the color coordinates in absolute pixels in restored image
+    
+    for row, col, color in pnts:
+        abs_row = x0 + row
+        abs_col = y0 + col
+        
+        img_color_restored[abs_row][abs_col] = img_color[row][col]
+        
+    return img_color_restored
 
 def processROI(pulse_index, iter_index, exp_index, img, parent_dir_abs):
     """

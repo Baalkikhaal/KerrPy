@@ -12,7 +12,7 @@ from globalVariables import debug, deep_debug, proc_dir, fits_folder, samplename
 from globalVariables import save_exps_file
 from globalVariables import raw_dir
 
-from processExperiment import processExperiment
+from KerrPy.File.processExperiment import processExperiment
 
 def extractControlsFromFolderName(foldername):
     """
@@ -72,7 +72,6 @@ def findExperiment(exp_controls, parent_dir_abs):
     if not exp_dir:
         if debug: 
             print(f"FATAL! Experiment {exp_controls} not found!")
-        exit
     
     #Restore the path
     os.chdir(cur_path)

@@ -9,7 +9,7 @@ import numpy as np
 
 from globalVariables import debug, proc_dir, fits_folder, samplename, nImages
 
-from processPulse import processPulse
+from KerrPy.File.processPulse import processPulse
 
 def saveIteration(iter_index, exp_index, iteration, parent_dir_abs):
     """
