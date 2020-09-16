@@ -27,13 +27,13 @@ training_folder = 'DataTraining'
 
 os.chdir(training_folder)
 
-test_big_domain_folder = 'MediumDomain'
+test_big_domain_folder = 'BigDomain'
 
 os.chdir(test_big_domain_folder)
 
-img_test_file = 'testMediumDomain.png'
+img_test_file = 'testBigDomain.png'
 
-pulse_index = 2
+pulse_index = 8
 iter_index = 0
 exp_index = 0
 parent_dir_abs = os.path.abspath(os.curdir)

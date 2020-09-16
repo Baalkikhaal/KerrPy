@@ -48,6 +48,6 @@ save_controls_file = 'controls.npy'
 ######debug parameters###
 #########################
 debug = True
-deep_debug = False
+deep_debug = True
 displayImages = False
-saveImages = True
+saveImages = False
