@@ -10,6 +10,13 @@ import os, os.path
 import matplotlib as mpl
 mpl.style.use('myMatplotlibStylesheet.mplstyle')
 mpl.rcParams['text.usetex'] =  True
+mpl.use('pdf', force=True)  # set noninteractive backend 'pdf'
+# to check the available non gui backends
+#   non_gui_backends = mpl.rcsetup.non_interactive_bk
+#   print(non_gui_backends)
+#   to check gui backends
+#   gui_backends = mpl.rcsetup.interactive_bk
+#   Reference : https://stackoverflow.com/questions/3285193/how-to-change-backends-in-matplotlib-python
 import matplotlib.pyplot as plt
 
 import numpy as np

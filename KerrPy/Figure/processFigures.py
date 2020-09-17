@@ -364,8 +364,8 @@ def processFigures(parent_dir_abs):
     
     # plot the figures
     if saveFigures:
-        # drawIterationFigures(filtered_space, controls, parent_dir_abs)
-        # drawExperimentFigures(filtered_space, controls, parent_dir_abs)
+        drawIterationFigures(filtered_space, controls, parent_dir_abs)
+        drawExperimentFigures(filtered_space, controls, parent_dir_abs)
         drawSpaceFigures(filtered_space, controls, parent_dir_abs)
         
     return controls, filtered_space
