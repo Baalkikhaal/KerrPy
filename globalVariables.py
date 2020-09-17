@@ -37,6 +37,7 @@ raw_dir = r'DataSimplified'
 proc_dir = r'PostProcessing'
 imgs_folder = r'Images'
 fits_folder = r'Fits'
+figs_folder = r'Figures'
 seq_file = r'testSequence.csv'
 samplename = r'DataSimplified'
 
@@ -48,6 +49,7 @@ save_controls_file = 'controls.npy'
 ######debug parameters###
 #########################
 debug = True
-deep_debug = True
+deep_debug = False
 displayImages = False
-saveImages = False
+saveImages = True
+saveFigures = True

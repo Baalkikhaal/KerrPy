@@ -40,7 +40,7 @@ def getControls():
         Hop     =   '{:.1f}'.format(exp_seq[i][0])   
         tp      =   '{:.1f}'.format(exp_seq[i][1])
         
-        exp_control = [Hip, Hop, tp]
+        exp_control = [[Hip, Hop, tp], i]
         
         controls.append(exp_control)
     

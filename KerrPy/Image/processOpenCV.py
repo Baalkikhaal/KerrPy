@@ -47,6 +47,9 @@ def fitEllipse(img_edges,  ROI):
         1. Fit the edge to ellipse using mrgaze routine FitEllipse_LS
         2. Find the outliers, inliers and percent_inliers 
     """
+    # transpose the image to extract the points as coordinate system
+    # for openCV is transpose of numpy array coordinate system
+    # i.e. the point coordinates are transpose of array coordinates
     
     pnts = np.transpose(np.asarray(np.nonzero(np.transpose(img_edges))))
     
@@ -55,17 +58,49 @@ def fitEllipse(img_edges,  ROI):
     ######################
     
     best_ellipse =  FitEllipse_LeastSquares(pnts)
-
-    #find the center coordinates in old coordinate system
     
-    abs_center = np.array(best_ellipse[0]) + np.array(center_ROI) - 0.5*np.array(ROI,dtype=np.float)
     #Find confidence of fit
     perc_inliers, inliers, norm_err = ConfidenceInFit(pnts, best_ellipse, max_norm_err_sq, debug)
+    
+    int_perc_inliers = np.int(perc_inliers)
+    
+    # save parameters in absolute coordinate system
+    rel_ellipse_center = np.array(best_ellipse[0], dtype = np.int)
+    rel_ellipse_major, rel_ellipse_minor = np.array(best_ellipse[1], dtype = np.int)
+    rel_ellipse_orientation = np.array(best_ellipse[2], dtype = np.int)
+    
+    #find the center coordinates in absolute coordinate system
+    
+    # origin of ROI
+    origin_ROI = center_ROI - 0.5*np.array(ROI)
+    int_origin_ROI = origin_ROI.astype(int)
+    
+    # since we transposed the image, the coordinates of ellipse also need to be transposed
+    rel_ellipse_center_transpose = np.array([rel_ellipse_center[1], rel_ellipse_center[0]])
+    
+    abs_ellipse_center = int_origin_ROI + rel_ellipse_center_transpose
+    
+    abs_x_center = abs_ellipse_center[0]
+    abs_y_center = abs_ellipse_center[1]
+    
+    # TODO also we need to flip the major and minor ??!! check for rotated ellipse
+    
+    abs_ellipse_major = rel_ellipse_minor
+    abs_ellipse_minor = rel_ellipse_major
+    
+    # also we need to rotate the orientation by 180 modulo 360
+    
+    abs_ellipse_orientation = (rel_ellipse_orientation + 180 )%180
+    
+    
     #parameters to return as an 6-channel array element
-    pulse = [perc_inliers, abs_center[1], abs_center[0], best_ellipse[1][1], best_ellipse[1][0],best_ellipse[2]]
+    pulse = [int_perc_inliers, abs_x_center, abs_y_center, abs_ellipse_major, abs_ellipse_minor, abs_ellipse_orientation]
+    array_pulse = np.array(pulse, dtype=np.float)
+    
+    # overlay the fit ellipse onto the image
     img_color = OverlayFitEllipse(img_edges, pnts, norm_err, inliers, best_ellipse)
     
-    return pulse, img_color
+    return array_pulse, img_color
 
 def findEdge(pulse_index, iter_index, exp_index, img, parent_dir_abs):
     """

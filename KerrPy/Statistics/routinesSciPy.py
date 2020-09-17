@@ -39,7 +39,10 @@ def modalAnalysis(image, img_restored, ROI):
     maximum = x_eval[argrelextrema(pde,np.greater)]
     if debug:
         if deep_debug:
-            print(f"                U. A. peaks: {maximum} at {ROI}")
+            # for formating strings Refer https://pyformat.info/
+            # print('{}{:d}{}{}'.format('                U. A. peaks at pixel intensity: ', maximum, ' for ', ROI))
+            print(f'                U. A. peaks at pixel intensity: {maximum} for {ROI}')
+
     #find the relative strength of foreground to background. Evaluate this only if there are two peaks corresponding to foreground and background. Else set to default zero.
     rel_strength = 0
     if maximum.size==2:

@@ -66,7 +66,7 @@ def findExperiment(exp_controls, parent_dir_abs):
     for each in dirs:
         controls_extracted = extractControlsFromFolderName(each)
         
-        if (controls_extracted == exp_controls):
+        if (controls_extracted == exp_controls[0]):
             exp_dir = each
             break
     if not exp_dir:
