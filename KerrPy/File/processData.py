@@ -12,7 +12,7 @@ from KerrPy.File.processControls import processControls
 from KerrPy.File.processSpace import processSpace
 
 
-def processFits():
+def processData():
     """ 0. Do pre-conditioning for saving the fits.
         1. Get the controls from .csv sequence file.
         2. process the experiment space."""
@@ -32,4 +32,4 @@ def processFits():
     return controls, space
 
 if __name__ == '__main__':
-    controls, space = processFits()
+    controls, space = processData()

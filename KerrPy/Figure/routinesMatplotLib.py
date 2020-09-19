@@ -23,6 +23,8 @@ import numpy as np
 
 from globalVariables import debug
 
+from KerrPy.Fits.processVelocity import fitLinear
+
 def displayImage(image, title):
     """
         Display the image with given title
@@ -193,10 +195,16 @@ def plotIteration(exp_index, iter_index, iteration, control):
         across the pulses
         
         Return the figures for the plots.
+        
+        # TODO plot linear fits to the data
     """
     
     # extracts the controls for the iteration
     Hip, Hop, delta_t = control
+    
+
+    
+    #########figure plotting##############
     
     # set the label for the figure
     label = f'E: {exp_index} = ' + r'$H_{x}, H_{z}, \Delta t =~$' + f"{Hip}, {Hop}, {delta_t} I: {iter_index}"
@@ -250,7 +258,7 @@ def plotIteration(exp_index, iter_index, iteration, control):
         x = np.arange(nImages)
         y = iteration[:,i]
         
-        ax.plot(x, y, label = label)
+        ax.plot(x, y, 'o', label = label)
         
         # Place a legend above the subplot,
         
@@ -263,7 +271,47 @@ def plotIteration(exp_index, iter_index, iteration, control):
 
         #append the fig filename to list
         list_figs_files.append(list_labels_1D[i][3])
-
+        
+    ######### Linear fitting ####################
+    
+    # extract the linear fit parameters (slope, intercept) 
+    # to the iteration parameters (x_c, y_c, a, b)
+    
+    # number of images
+    nImages = iteration.shape[0]
+    
+    x = np.arange(nImages)
+    
+    y = iteration[:, [1,2,3,4]]
+    
+    fits = fitLinear(x,y)    
+    
+    # set the indices of list_figs to draw the lines onto
+    
+    indices = [1, 2, 3, 4]
+    
+    # draw line on each of the parameters x_c, y_c, a, b
+    
+    for i in np.arange(len(indices)):
+        
+        m = fits[i,0]
+        
+        c = fits[i,1]
+        
+        #extract already generated figure object from the list_figs
+        
+        fig_linear = list_figs[indices[i]]
+        
+        # axes of a figure are stored as list fig.axes
+        ax_linear = fig_linear.axes[0]
+        
+        x_linear = x
+        
+        y_linear = m * x + c
+        
+        ax_linear.plot(x_linear, y_linear, '-')
+        
+        
     return list_figs, list_figs_files
 
 
@@ -335,7 +383,7 @@ def plotExperiment(exp_index, avg_iteration, control):
         x = np.arange(nImages)
         y = avg_iteration[:,i]
         
-        ax.plot(x, y, label = label)
+        ax.plot(x, y, 'o', label = label)
         
         # Place a legend above the subplot,
         
@@ -348,6 +396,46 @@ def plotExperiment(exp_index, avg_iteration, control):
 
         #append the fig filename to list
         list_figs_files.append(list_labels_1D[i][3])
+        
+    ######### Linear fitting ####################
+    
+    # extract the linear fit parameters (slope, intercept) 
+    # to the iteration parameters (x_c, y_c, a, b)
+    
+    # number of images
+    nImages = avg_iteration.shape[0]
+    
+    x = np.arange(nImages)
+    
+    y = avg_iteration[:, [1,2,3,4]]
+    
+    fits = fitLinear(x,y)    
+    
+    # set the indices of list_figs to draw the lines onto
+    
+    indices = [1, 2, 3, 4]
+    
+    # draw line on each of the parameters x_c, y_c, a, b
+    
+    for i in np.arange(len(indices)):
+        
+        m = fits[i,0]
+        
+        c = fits[i,1]
+        
+        #extract already generated figure object from the list_figs
+        
+        fig_linear = list_figs[indices[i]]
+        
+        # axes of a figure are stored as list fig.axes
+        ax_linear = fig_linear.axes[0]
+        
+        x_linear = x
+        
+        y_linear = m * x + c
+        
+        ax_linear.plot(x_linear, y_linear, '-')
+
 
     return list_figs, list_figs_files
 
@@ -462,109 +550,4 @@ def plotSpace(avg_space, controls):
 
     return list_figs, list_figs_files
 
-
-def PlotTimeSequence(subspace_experiments, subspace_controls_extracted, controls_extracted, nImages, saveImages, fits_dir_par, samplename, debug):
-    n_exp = subspace_experiments.shape[1]# no of experiments in the subspace
-    print(f"n_exp is {n_exp}")
-
-    if n_exp == 0:
-        if debug: print('Alert!!! No experiment found... Bypassing plotting!')
-        pass
-
-    else:
-        #2D list of strings with rows as channels and columns as title, xlabel, ylabel
-        labels_2D = [[r'Confidence $c~(\mathrm{in}~\%)$', r'$\mathrm{n_{pulse}}$', r'$[ H_{x}, H_{z}, \Delta t ]$  (in [Oe, Oe, ms])', r'Confidence'],[r'X-Center $x_{c} $(in pixels)', r'$\mathrm{n_{pulse}}$', r'$[ H_{x}, H_{z}, \Delta t ]$  (in [Oe, Oe, ms])', r'X-Center'], [r'Y-Center $y_{c} $(in pixels)', r'$\mathrm{n_{pulse}}$', r'$[ H_{x}, H_{z}, \Delta t ]$  (in [Oe, Oe, ms])',r'Y-Center'], [r'Semi Major Axis $a$ (in pixels)', r'$\mathrm{n_{pulse}}$', r'$[ H_{x}, H_{z}, \Delta t ]$  (in [Oe, Oe, ms])', r'Semi-Major-Axis'],[r'Semi Minor Axis $b$ (in pixels)', r'$\mathrm{n_{pulse}}$', r'$[ H_{x}, H_{z}, \Delta t ]$  (in [Oe, Oe, ms])',r'Semi-Minor-Axis'], [r'Orientation $o~(\mathrm{in}~^{\circ})$', r'$\mathrm{n_{pulse}}$', r'$[ H_{x}, H_{z}, \Delta t ]$  (in [Oe, Oe, ms])', r'Orientation']]
-
-        if debug: print("Plotting 2D plot for the subspace of experiment given by \n" + str(subspace_experiments))
-        
-        for i in np.arange(6):
-            mpl.style.use('myMatplotlibStylesheet.mplstyle')
-            mpl.rcParams['figure.figsize'] = 3.0, 3.0
-            mpl.rcParams['figure.subplot.left'] = 0.4
-            mpl.rcParams['figure.subplot.right'] = 0.9
-            mpl.rcParams['figure.subplot.top'] = 0.8
-            #disable the minor ticks as they are NOT needed to interpret the surface plot
-            mpl.rcParams['xtick.minor.visible'] = False
-            mpl.rcParams['ytick.minor.visible'] = False
-            plt.figure()
-            plt.title(labels_2D[i][0]) 
-            plt.xlabel(labels_2D[i][1])
-            plt.ylabel(labels_2D[i][2])
-            plt.plot(subspace_experiments[i])
-            xticks = list(np.arange(nImages))
-            yticks = list(subspace_controls_extracted)
-            plt.xticks(np.arange(nImages), xticks)
-            plt.yticks(np.arange(n_exp), yticks)
-            plt.imshow(subspace_experiments[i])
-            plt.colorbar()
-            
-            #Store the location of the current image which is under processing
-            cur_path = os.path.abspath(os.curdir)
-            
-            if saveImages:
-                # save the experiments, controls_extracted and control knobs 
-                if debug: print("Saving 2D plots for " + str(subspace_controls_extracted) + ' ' + str(labels_2D[i][0]))
-    
-                fits_root = os.path.abspath(os.path.join(fits_dir_par,samplename))
-                os.chdir(fits_root)
-    
-                # for the filename, let us make string of indices of experiments
-                subspace_experiments_indices = ExtractSubspaceIndices(subspace_controls_extracted, controls_extracted, debug)
-                
-                fits_2D_filename = ''
-                for each in subspace_experiments_indices: fits_2D_filename += f'{each}_'
-                fits_2D_filename_png = f'{fits_2D_filename}_{labels_2D[i][3]}.png'
-                fits_2D_filename_pdf = f'{fits_2D_filename}_{labels_2D[i][3]}.pdf'
-
-                # save the plot to the file
-                plt.savefig(fits_2D_filename_png)
-                plt.savefig(fits_2D_filename_pdf)
-
-                #one times we used os.chdir() so we need to come out of the tree three times
-                os.chdir('..')
-            
-            #Restore the path to the image path
-            os.chdir(cur_path)
-    return
-
-def ExtractSubspaceIndices(subspace_controls_extracted, controls_extracted, debug):
-    if debug: print ("Searching for subspace indices" + str(subspace_controls_extracted))
-    subspace_experiments_indices = []
-    n = subspace_controls_extracted.shape[0]
-    if debug: print("No of subspace experiments found: " + str(n))
-    N = controls_extracted.shape[0]
-    if debug: print("No of total experiments found: " + str(n))
-
-    for i in np.arange(n):
-        for j in np.arange(N):
-            if (subspace_controls_extracted[i] == controls_extracted[j]).all():
-              if debug:print('Found experiment' + str(controls_extracted[j]))
-              subspace_experiments_indices.append(j)
-    n_ind = len(subspace_experiments_indices)
-
-    if n_ind == 0:
-        if debug: print("Experiment not found!!!")
-    #set up the subspace of experiments
-    if debug: print(f'Subspace experiment indices are: {subspace_experiments_indices}')
-    subspace_experiments_indices = np.asarray(subspace_experiments_indices)
-    return subspace_experiments_indices
-
-# def PlotSubspace(filtered_experiments, Hip, Hop):
-#     subspace_experiments, subspace_experiments_indices = extractTimeSequenceExperiments(filtered_experiments, controls_extracted, Hip, Hop,nImages, DEBUG=debug)
-#     subspace_controls_extracted = controls_extracted[[subspace_experiments_indices]]
-#     print(f"subspace controls extracted is {subspace_controls_extracted}")
-
-
-#     PlotTimeSequence(subspace_experiments, subspace_controls_extracted, controls_extracted, nImages, saveImages, fits_dir_par, samplename, debug)
-#     subspace_experimentes_indices = ExtractSubspaceIndices(subspace_controls_extracted, controls_extracted, debug)
-# def PlotFullSpace(experiments, controls_extracted):
-#     fits_params = experiments.shape[0]
-#     n_exp = experiments.shape[1]
-#     n_pulse = experiments.shape[2]
-        
-#     PlotTimeSequence(experiments, controls_extracted, controls_extracted, nImages, saveImages, fits_dir_par, samplename, debug)
-
-# def PlotExperimentIndices(experiments, experiment_indices, controls_extracted):
-#     subspace_experiments = experiments[:,experiment_indices,:]
-#     subspace_controls_extracted = controls_extracted[experiment_indices]
 

@@ -5,6 +5,6 @@ Created on Sun Sep 13 17:48:40 2020
 @author: fubar
 """
 
-from KerrPy.File.loadFits import loadFits
+from KerrPy.Fits.loadFits import loadFits
 
 controls, space = loadFits()

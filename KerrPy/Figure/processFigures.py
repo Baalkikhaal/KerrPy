@@ -10,9 +10,12 @@ import numpy as np
 
 
 from globalVariables import debug, proc_dir, figs_folder, samplename
-from globalVariables import saveFigures, min_confidence
+from globalVariables import saveFigures
 
 from KerrPy.File.loadFits import loadFits
+
+from KerrPy.Fits.filterSpace import filterSpace
+
 from KerrPy.Figure.routinesMatplotLib import saveFig, plotIteration, plotExperiment, plotSpace
  
 
@@ -30,31 +33,6 @@ def extractSubspace(list_exp_indices, space ):
     return subspace
 
 
-def filterSpace(space):
-    """
-        Compare the confidence of fits across the space
-        with global min_confidence
-        Define badfits as ones with confidence less than
-        minimum confidence and extract the indices for
-        such pulses.
-        
-        Set all the pulse parameters corresponding to badfits
-        to np.nan
-        
-        Return the filtered space
-    """
-    confidence = space[:,:,:,0]
-    
-    badfits = confidence < min_confidence
-    badfits_indices = np.nonzero(badfits)
-    
-    # ALERT! create a hard copy of space to avoid manipulating it.
-    filtered_space = space.copy()
-    
-    # set the pulse parameters i.e. confidence, a, b, x_c, y_c, o to np.nan
-    filtered_space[badfits_indices] = np.nan
-    
-    return filtered_space
 
     
 def saveFigsSpace( avg_space, list_figs_files, list_figs, parent_dir_abs):
@@ -241,6 +219,8 @@ def drawIterationFigures(space, controls, parent_dir_abs):
         1. Save the figures to global figs_folder
     
         ALERT! is called only when the saveFigures is True
+        
+        # TODO draw the linear fits to the data
     """
 
     
@@ -344,12 +324,12 @@ def drawSpaceFigures(space, controls, parent_dir_abs):
         
         avg_space[i, 0] = avg_iteration
         
-        #plot the figures of the experiment
-        list_figs, list_figs_files = plotSpace(avg_space, controls)
-    
-        # save the list of figures and experiment parameters
-            
-        saveFigsSpace( avg_space, list_figs_files, list_figs, parent_dir_abs)
+    #plot the figures of the experiment
+    list_figs, list_figs_files = plotSpace(avg_space, controls)
+
+    # save the list of figures and experiment parameters
+        
+    saveFigsSpace( avg_space, list_figs_files, list_figs, parent_dir_abs)
 
 
 def processFigures(parent_dir_abs):

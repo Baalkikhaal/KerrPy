@@ -38,6 +38,7 @@ proc_dir = r'PostProcessing'
 imgs_folder = r'Images'
 fits_folder = r'Fits'
 figs_folder = r'Figures'
+vel_folder = r'Velocity'
 seq_file = r'testSequence.csv'
 samplename = r'DataSimplified'
 
