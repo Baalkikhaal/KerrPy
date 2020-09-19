@@ -12,7 +12,7 @@ import numpy as np
 from globalVariables import debug, proc_dir, figs_folder, samplename
 from globalVariables import saveFigures
 
-from KerrPy.File.loadFits import loadFits
+from KerrPy.Fits.loadFits import loadFits
 
 from KerrPy.Fits.filterSpace import filterSpace
 

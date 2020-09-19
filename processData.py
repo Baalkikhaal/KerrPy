@@ -5,6 +5,6 @@ Created on Sat Sep 12 17:19:27 2020
 @author: fubar
 """
 
-from KerrPy.File.processFits import processFits
+from KerrPy.Fits.processData import processData
 
-controls, space = processFits()
+controls, space = processData()
