@@ -5,7 +5,6 @@ Created on Mon Sep 14 18:07:55 2020
 @author: fubar
 """
 
-import os, os.path
 
 import matplotlib as mpl
 mpl.style.use('myMatplotlibStylesheet.mplstyle')
@@ -152,9 +151,9 @@ def displayMorphTrans(images, titles):
     mpl.rcParams['figure.subplot.right'] = 0.9
     mpl.rcParams['figure.subplot.top'] = 0.9
     
-    fig, axes = plt.subplots(2,3)
+    fig, axes = plt.subplots(3,3)
     
-    for i in np.arange(2):
+    for i in np.arange(3):
         for j in np.arange(3):
             axes[i,j].imshow(images[i][j],'gray')
             axes[i,j].set_title(titles[i][j])

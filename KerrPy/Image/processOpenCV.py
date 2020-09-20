@@ -14,7 +14,8 @@ import cv2
 from globalVariables import debug, deep_debug
 from globalVariables import proc_dir, imgs_folder, samplename
 from globalVariables import displayImages, saveImages
-from globalVariables import nucleation_down, center_ROI, adaptive_ROI
+from globalVariables import nucleation_down
+from globalVariables import center_ROI, adaptive_ROI, aspr_ROI, adaptive_ROI_seq
 from globalVariables import max_norm_err_sq
 
 from KerrPy.Image.processROI import processROI
@@ -111,7 +112,7 @@ def findEdge(pulse_index, iter_index, exp_index, img, parent_dir_abs):
     
 
     #set default ROI corresponding to clipping the bottom scale information
-    ROI = [1022, 1344]
+    ROI = np.array([adaptive_ROI_seq[pulse_index], aspr_ROI * adaptive_ROI_seq[pulse_index]], dtype = np.int)
     
     if adaptive_ROI:
         #find optimum ROI

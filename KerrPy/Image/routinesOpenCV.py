@@ -8,7 +8,7 @@ import cv2
 import numpy as np
 
 
-from globalVariables import center_ROI
+from globalVariables import center_ROI, nucleation_down, speckless_second
 
 from globalVariables import kernel_gaussian, kernel_median, kernel_speckless, kernel_speckless_second
 
@@ -96,23 +96,78 @@ def removeSpeckles(img):
         to remove the speckles in background
         and holes in object
         
+        If the nucleation is down, first close then open the image.
+        else reverse the order of transformation.
+        
         Reference: Morphological transformations with openCV
         https://docs.opencv.org/trunk/d9/d61/tutorial_py_morphological_ops.html
+        
+        # TODO check if the order of opening and closing affects
+        removal of speckless differently for nucleation up and down images
+         
     """
+
+    img_speckless = np.zeros(img.shape)
+
+    # first level of morph transformation
+        
     kernel = np.ones((kernel_speckless,kernel_speckless),np.uint8)
 
-    # erode the image
-    img_opened = cv2.morphologyEx(img, cv2.MORPH_OPEN, kernel)
-
-    # dilate the image 
-    img_openedthenclosed = cv2.morphologyEx(img_opened, cv2.MORPH_CLOSE, kernel)
-
-    img_speckless = img_openedthenclosed
-
-    kernel_second = np.ones((kernel_speckless_second, kernel_speckless_second),np.uint8)
-    img_openthenclosedthenopened = cv2.morphologyEx(img_openedthenclosed, cv2.MORPH_OPEN, kernel_second)
-    img_openthenclosedthenopenedthenclosed = cv2.morphologyEx(img_openthenclosedthenopened, cv2.MORPH_CLOSE, kernel_second)
-    img_speckless = img_openthenclosedthenopenedthenclosed
+    
+    if nucleation_down:
+                
+        
+        # close the image
+        
+        img_closed = cv2.morphologyEx(img, cv2.MORPH_CLOSE, kernel)
+    
+        # open the image 
+        
+        img_closedthenopened = cv2.morphologyEx(img_closed, cv2.MORPH_OPEN, kernel)
+        
+        img_speckless = img_closedthenopened
+        
+    else:
+    
+        # open the image
+        
+        img_opened = cv2.morphologyEx(img, cv2.MORPH_OPEN, kernel)
+    
+        # close the image 
+        img_openedthenclosed = cv2.morphologyEx(img_opened, cv2.MORPH_CLOSE, kernel)
+    
+        img_speckless = img_openedthenclosed
+        
+    if speckless_second:
+    
+        # second level of morph transformation
+        
+        kernel_second = np.ones((kernel_speckless_second, kernel_speckless_second),np.uint8)
+    
+        if nucleation_down:
+            
+            # close the image
+            
+            img_closedthenopenedthenclosed = cv2.morphologyEx(img_closedthenopened, cv2.MORPH_CLOSE, kernel_second)
+            
+            # open the image
+            
+            img_closedthenopenedthenclosedthenopened = cv2.morphologyEx(img_closedthenopenedthenclosed, cv2.MORPH_OPEN, kernel_second)
+            
+            img_speckless = img_closedthenopenedthenclosedthenopened
+            
+        else:
+            
+            # open the image
+            
+            img_openthenclosedthenopened = cv2.morphologyEx(img_openedthenclosed, cv2.MORPH_OPEN, kernel_second)
+            
+            # close the image
+            
+            img_openthenclosedthenopenedthenclosed = cv2.morphologyEx(img_openthenclosedthenopened, cv2.MORPH_CLOSE, kernel_second)
+            
+            img_speckless = img_openthenclosedthenopenedthenclosed
+        
     return img_speckless
 
 def cannyEdgesAndContoursOpenCV(image, nucleation_down, lower_threshold=100, upper_threshold=200):
@@ -125,7 +180,7 @@ def cannyEdgesAndContoursOpenCV(image, nucleation_down, lower_threshold=100, upp
     
     edges = []
     contours = []
-    if nucleation_down == 1:
+    if nucleation_down:
         edges = cv2.Canny(image, lower_threshold, upper_threshold)
     else:
         edges = cv2.Canny(np.invert(image), lower_threshold, upper_threshold)
@@ -136,15 +191,44 @@ def cannyEdgesAndContoursOpenCV(image, nucleation_down, lower_threshold=100, upp
         
     #contours is a list of connected contours
     if contours:
-        n_edges = len(contours)
+        n_contours = len(contours)
     else : 
-        n_edges = 0
-    if deep_debug: print(f"                n_edges: {n_edges}")
+        n_contours = 0
+    if deep_debug: print(f"                n_edges: {n_contours}")
     
-    # largest_contour = contours[0]
-    # pnts = np.asarray(largest_contour[:,0])
+    
+    # array for number of points in each contour
+    
+    array_contour_length = np.zeros(n_contours)
 
-    # collect the contours which are greater than
-    # minimum contour length
+    for i in np.arange(n_contours):
+        array_contour_length[i] = len(contours[i])
+
+    if deep_debug: print(f"lengths of contours are: {array_contour_length}")
+    # sort the array length wise to extract the largest contour!
+
+    # find the indices of the sorted array        
+
+    sorted_indices = np.argsort(array_contour_length)
     
-    return edges
+    if deep_debug: print(f"sorted_indices are: {sorted_indices}")
+
+    # set the contour with largest length
+    largest_contour = contours[sorted_indices[-1]]
+    
+    if deep_debug: print(f"shape of largest_contour: {largest_contour.shape}")
+
+    # initialze image for single contour
+    img_single_contour = np.zeros(edges.shape, dtype= np.uint8)
+    
+    # set the pixel intensity to HIGH for points of the contour
+    for i in np.arange(largest_contour.shape[0]):
+        row = largest_contour[i][0][0]
+        col = largest_contour[i][0][1]
+        
+        #interchange rows and columns as openCV coordinates
+        # transpose of 2D array rows and columns
+        img_single_contour[col][row] = 255
+        
+    
+    return img_single_contour

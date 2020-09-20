@@ -146,28 +146,40 @@ img_closed = cv2.morphologyEx(img_otsu, cv2.MORPH_CLOSE, kernel)
 
 img_openedthenclosed = cv2.morphologyEx(img_opened, cv2.MORPH_CLOSE, kernel)
 
+img_closedthenopended = cv2.morphologyEx(img_closed, cv2.MORPH_OPEN, kernel)
+
 kernel_level_two = 15
 
 kernel = np.ones((kernel_level_two, kernel_level_two),np.uint8)
 
 img_openthenclosedthenopened = cv2.morphologyEx(img_openedthenclosed, cv2.MORPH_OPEN, kernel)
 
+img_closedthenopenedthenclosed = cv2.morphologyEx(img_closedthenopended, cv2.MORPH_CLOSE, kernel)
+
 img_openthenclosedthenopenedthenclosed = cv2.morphologyEx(img_openthenclosedthenopened, cv2.MORPH_CLOSE, kernel)
 
-writeImage("07_RemoveSpeckles_ErosionAndDilation.png", img_openthenclosedthenopenedthenclosed)
+img_closedthenopenedthenclosedthenopened = cv2.morphologyEx(img_closedthenopenedthenclosed, cv2.MORPH_OPEN, kernel)
+
+writeImage("07_RemoveSpeckles_ErosionAndDilation.png", img_closedthenopenedthenclosedthenopened)
 
 title_o = f'O({kernel_level_one})'
 title_c = f'C({kernel_level_one})'
+
 title_oc = f'O({kernel_level_one})C({kernel_level_one})'
 title_oco = f'O({kernel_level_one})C({kernel_level_one})O({kernel_level_two})'
 title_ococ = f'O({kernel_level_one})C({kernel_level_one})O({kernel_level_two})C({kernel_level_two})'
 
-titles_morph = [ ['Otsu', title_o, title_c ],
-                [title_oc, title_oco, title_ococ ]
-                ]
+title_co = f'C({kernel_level_one})O({kernel_level_one})'
+title_coc = f'C({kernel_level_one})O({kernel_level_one})C({kernel_level_two})'
+title_coco = f'C({kernel_level_one})O({kernel_level_one})C({kernel_level_two})O({kernel_level_two})'
 
+titles_morph = [ ['Otsu', title_o, title_c ],
+                [title_oc, title_oco, title_ococ ],
+                [title_co, title_coc, title_coco ]  
+                ]
 images_morph = [ [img_otsu, img_opened, img_closed ],
-                [ img_openedthenclosed , img_openthenclosedthenopened, img_openthenclosedthenopenedthenclosed]
+                [ img_openedthenclosed , img_openthenclosedthenopened, img_openthenclosedthenopenedthenclosed],
+                    [ img_closedthenopended , img_closedthenopenedthenclosed, img_closedthenopenedthenclosedthenopened]
                 ]
 
 fig_morph = displayMorphTrans(images_morph, titles_morph)
