@@ -7,6 +7,7 @@ Created on Mon Sep 14 17:08:29 2020
 import cv2
 import numpy as np
 
+from globalVariables import deep_debug
 
 from globalVariables import center_ROI, nucleation_down, speckless_second
 
@@ -71,6 +72,19 @@ def cropImage(img, ROI):
     
     return img_crop
 
+def cropImageCustomROI(img, customROI):
+    """
+        0. Find the origin of the crop
+        1. Crop the image
+    """
+    
+    img_crop = img[customROI[0] : customROI[2], customROI[1] : customROI[3]]
+    
+    if deep_debug: print(f"dimensions of img_crop with customROI: {customROI} are {img_crop.shape}")
+    
+    return img_crop
+
+
 def processImage(img, ROI):
     """"
         0. Crop the image
@@ -88,6 +102,25 @@ def processImage(img, ROI):
     img_med= cv2.medianBlur(img_blur,kernel_median)
     
     return img_med
+
+def processImageCustomROI(img, customROI):
+    """"
+        0. Crop the image
+        1. Histogram equalize the image
+        2. Gaussian blur the image
+        3. Median filter the image
+        
+        Use the global training parameters
+        kernel_Gaussian
+        kernel_median
+    """
+    img_crop = cropImageCustomROI(img, customROI)
+    img_equ = cv2.equalizeHist(img_crop)
+    img_blur = cv2.GaussianBlur(img_equ,(kernel_gaussian,kernel_gaussian),0)
+    img_med= cv2.medianBlur(img_blur,kernel_median)
+    
+    return img_med
+
 
 def removeSpeckles(img):
     """
@@ -189,46 +222,50 @@ def cannyEdgesAndContoursOpenCV(image, nucleation_down, lower_threshold=100, upp
         #find the contours in the edges to check the number of connected componenets
         contours, hierarchy = cv2.findContours(edges, cv2.RETR_TREE, cv2.CHAIN_APPROX_NONE)
         
+    # initialze image for single contour
+    img_single_contour = np.zeros(edges.shape, dtype= np.uint8)    
+        
     #contours is a list of connected contours
     if contours:
         n_contours = len(contours)
+        
+        # array for number of points in each contour
+        
+        array_contour_length = np.zeros(n_contours)
+    
+        for i in np.arange(n_contours):
+            array_contour_length[i] = len(contours[i])
+    
+        if deep_debug: print(f"lengths of contours are: {array_contour_length}")
+        # sort the array length wise to extract the largest contour!
+    
+        # find the indices of the sorted array        
+    
+        sorted_indices = np.argsort(array_contour_length)
+        
+        if deep_debug: print(f"sorted_indices are: {sorted_indices}")
+    
+        # set the contour with largest length
+        largest_contour = contours[sorted_indices[-1]]
+        
+        if deep_debug: print(f"shape of largest_contour: {largest_contour.shape}")
+    
+
+        
+        # set the pixel intensity to HIGH for points of the contour
+        for i in np.arange(largest_contour.shape[0]):
+            row = largest_contour[i][0][0]
+            col = largest_contour[i][0][1]
+            
+            #interchange rows and columns as openCV coordinates
+            # transpose of 2D array rows and columns
+            img_single_contour[col][row] = 255
+
     else : 
         n_contours = 0
+        
     if deep_debug: print(f"                n_edges: {n_contours}")
     
     
-    # array for number of points in each contour
-    
-    array_contour_length = np.zeros(n_contours)
-
-    for i in np.arange(n_contours):
-        array_contour_length[i] = len(contours[i])
-
-    if deep_debug: print(f"lengths of contours are: {array_contour_length}")
-    # sort the array length wise to extract the largest contour!
-
-    # find the indices of the sorted array        
-
-    sorted_indices = np.argsort(array_contour_length)
-    
-    if deep_debug: print(f"sorted_indices are: {sorted_indices}")
-
-    # set the contour with largest length
-    largest_contour = contours[sorted_indices[-1]]
-    
-    if deep_debug: print(f"shape of largest_contour: {largest_contour.shape}")
-
-    # initialze image for single contour
-    img_single_contour = np.zeros(edges.shape, dtype= np.uint8)
-    
-    # set the pixel intensity to HIGH for points of the contour
-    for i in np.arange(largest_contour.shape[0]):
-        row = largest_contour[i][0][0]
-        col = largest_contour[i][0][1]
-        
-        #interchange rows and columns as openCV coordinates
-        # transpose of 2D array rows and columns
-        img_single_contour[col][row] = 255
-        
     
     return img_single_contour
