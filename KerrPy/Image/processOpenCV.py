@@ -29,9 +29,7 @@ from KerrPy.Figure.routinesMatplotLib import displayImage, displayNormError
 from KerrPy.Image.fitEllipse import FitEllipse_LeastSquares, ConfidenceInFit, OverlayRANSACFit
 
 
-from KerrPy.Window.processWindow import updateStaticCanvas, updateDynamicCanvas
 
-from KerrPy.Figure.selectROI import selectROI
 
 
 def OverlayFitEllipse(img_edges, pnts, norm_err, inliers, best_ellipse):
@@ -407,34 +405,3 @@ def processOpenCV(pulse_index, iter_index, exp_index, img_file, parent_dir_abs):
     
     return pulse
 
-def processOpenCVWithWindow(static_ax, dynamic_ax, pulse_index, iter_index, exp_index, img_file, parent_dir_abs):
-    """
-        0. Read the image
-        1. Update the static canvas in window with img
-        2. Fit the Ellipse
-        3. Update the dynamic canvas in window with restored ROI
-        4. Save the image
-        5. Wait for user input
-    """
-    #Read the image file
-    img = cv2.imread(img_file, 0)
-    
-    # update the static canvas
-    updateStaticCanvas(static_ax, img)
-    
-    # Fit the ellise
-    pulse, img_color = findEdge(pulse_index, iter_index, exp_index, img, parent_dir_abs)
-    
-    # restored the colored fit onto the original image
-    img_restored = restoreColorROI(img_color, img)
-    
-    # update the dynamic canvas
-    updateDynamicCanvas(dynamic_ax, img_restored)
-    
-    #save the image to file    
-    saveImage(pulse_index, iter_index, exp_index, img_color, parent_dir_abs)
-    
-    # wait for user input
-    input("Press Enter to proceed!")
-    
-    return pulse

@@ -1,3 +1,12 @@
+# ignore the following top level files
+
+img.npy
+img_crop.npy
+coordinates.npy
+
+
+########## Python gitignore ##############
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]

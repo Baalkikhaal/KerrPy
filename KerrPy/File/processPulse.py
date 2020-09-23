@@ -26,8 +26,11 @@ def savePulse(pulse_index, iter_index, exp_index, pulse, parent_dir_abs):
     if not os.path.isdir(proc_dir_abs): os.mkdir(proc_dir_abs)
     
     fits_dir_abs = os.path.abspath(os.path.join(proc_dir_abs,fits_folder))
+    if not os.path.isdir(fits_dir_abs): os.mkdir(fits_dir_abs)
+
     fits_root = os.path.abspath(os.path.join(fits_dir_abs,samplename))
-    
+    if not os.path.isdir(fits_root): os.mkdir(fits_root)
+
     #change to Fits root folder (LEVEL 0)
     os.chdir(fits_root)
 
