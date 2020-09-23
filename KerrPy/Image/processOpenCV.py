@@ -12,13 +12,13 @@ import cv2
 
 
 from globalVariables import debug, deep_debug
-from globalVariables import proc_dir, imgs_folder, samplename
-from globalVariables import displayImages, saveImages
+from globalVariables import proc_dir, imgs_folder, restored_folder, samplename
+from globalVariables import displayImages, saveImages, saveRestoredImages
 from globalVariables import nucleation_down
 from globalVariables import center_ROI, adaptive_ROI, aspr_ROI, adaptive_ROI_seq
 from globalVariables import max_norm_err_sq
 
-from KerrPy.Image.processROI import processROI
+from KerrPy.Image.processROI import processROI, restoreColorROI
 
 from KerrPy.Image.routinesOpenCV import processImage, removeSpeckles, cannyEdgesAndContoursOpenCV
 
@@ -156,50 +156,114 @@ def saveImage(pulse_index, iter_index, exp_index, img_color, parent_dir_abs):
         title = "Ellipse Fit with Inliers and Outliers"
         displayImage(img_color, title) 
 
-    #save the image if saveImages flag is True
-    if saveImages:
-        
-        if debug: print("            L3 saveImage() saving image")
-        
-        proc_dir_abs = os.path.abspath(os.path.join(parent_dir_abs, proc_dir))
-        if not os.path.isdir(proc_dir_abs): os.mkdir(proc_dir_abs)
-        
-        # image fits folder root
-        img_dir_abs = os.path.abspath(os.path.join(proc_dir_abs, imgs_folder))
-        img_root = os.path.abspath(os.path.join(img_dir_abs,samplename))
-        
-        # change to Images Fits root folder (LEVEL 0)
-        os.chdir(img_root)
-        
-        # image folder for current experiment; create it if not yet
-        img_exp_folder = f"Experiment_{exp_index}"
-        if not os.path.isdir(img_exp_folder): os.mkdir(img_exp_folder)
-        
-        #change to images experiment folder (LEVEL 1)
-        os.chdir(img_exp_folder)
+    if debug: print("            L3 saveImage() saving image")
     
-        # image folder for current iteration; create it if not yet
-        img_iter_folder = f"Experiment_{exp_index}_Iteration_{iter_index}"
-        if not os.path.isdir(img_iter_folder): os.mkdir(img_iter_folder)
+    proc_dir_abs = os.path.abspath(os.path.join(parent_dir_abs, proc_dir))
+    if not os.path.isdir(proc_dir_abs): os.mkdir(proc_dir_abs)
     
-        #change to images iteration folder (LEVEL 2)
-        os.chdir(img_iter_folder)
+    # image fits folder root
+    img_dir_abs = os.path.abspath(os.path.join(proc_dir_abs, imgs_folder))
+    img_root = os.path.abspath(os.path.join(img_dir_abs,samplename))
     
-        # image folder for current pulse; create it if not yet
-        img_pulse_folder = f"Experiment_{exp_index}_Iteration_{iter_index}_Pulse_{pulse_index}"
-        if not os.path.isdir(img_pulse_folder): os.mkdir(img_pulse_folder)
-        
-        #change to Fits pulse folder (LEVEL 3)
-        os.chdir(img_pulse_folder)
-        
-        #save the image here
-        img_file = f"{img_pulse_folder}.png"
-        cv2.imwrite(img_file,img_color)
+    # change to Images Fits root folder (LEVEL 0)
+    os.chdir(img_root)
+    
+    # image folder for current experiment; create it if not yet
+    img_exp_folder = f"Experiment_{exp_index}"
+    if not os.path.isdir(img_exp_folder): os.mkdir(img_exp_folder)
+    
+    #change to images experiment folder (LEVEL 1)
+    os.chdir(img_exp_folder)
+
+    # image folder for current iteration; create it if not yet
+    img_iter_folder = f"Experiment_{exp_index}_Iteration_{iter_index}"
+    if not os.path.isdir(img_iter_folder): os.mkdir(img_iter_folder)
+
+    #change to images iteration folder (LEVEL 2)
+    os.chdir(img_iter_folder)
+
+    # image folder for current pulse; create it if not yet
+    img_pulse_folder = f"Experiment_{exp_index}_Iteration_{iter_index}_Pulse_{pulse_index}"
+    if not os.path.isdir(img_pulse_folder): os.mkdir(img_pulse_folder)
+    
+    #change to Fits pulse folder (LEVEL 3)
+    os.chdir(img_pulse_folder)
+    
+    #save the image here
+    img_file = f"{img_pulse_folder}.png"
+    cv2.imwrite(img_file,img_color)
 
         
     #Restore the path to the image path
     os.chdir(cur_path)
         
+def saveRestoredImage(pulse_index, iter_index, exp_index, img_restored, parent_dir_abs):
+    """
+        If global flag restoreImages is True, then save the img_color
+        at corresponding heirarchial location in Restored roots directory
+        
+        Also if global flag displayImages is True, then show the images
+        NOTE that turning this on may eat up the memory for displaying
+        multiple images. So use only for debugging purposes!!!
+
+    """
+
+    if debug: print(f"            L3 saveRestoredImage() started at E:{exp_index} I:{iter_index} P:{pulse_index}")
+
+    #Store the current location before relocating
+    cur_path = os.path.abspath(os.curdir)
+
+    #display the image if displayImags flag is True
+    if displayImages:
+        title = "Ellipse Fit with Inliers and Outliers"
+        displayImage(img_restored, title) 
+
+    
+    if debug: print("            L3 saveRestoredImage() saving image")
+    
+    proc_dir_abs = os.path.abspath(os.path.join(parent_dir_abs, proc_dir))
+    if not os.path.isdir(proc_dir_abs): os.mkdir(proc_dir_abs)
+    
+    # image fits folder root
+    restored_dir_abs = os.path.abspath(os.path.join(proc_dir_abs, restored_folder))
+    if not os.path.isdir(restored_dir_abs): os.mkdir(restored_dir_abs)
+
+    restored_root = os.path.abspath(os.path.join(restored_dir_abs,samplename))
+    if not os.path.isdir(restored_root): os.mkdir(restored_root)
+
+    # change to Images Fits root folder (LEVEL 0)
+    os.chdir(restored_root)
+    
+    # image folder for current experiment; create it if not yet
+    restored_exp_folder = f"Experiment_{exp_index}"
+    if not os.path.isdir(restored_exp_folder): os.mkdir(restored_exp_folder)
+    
+    #change to images experiment folder (LEVEL 1)
+    os.chdir(restored_exp_folder)
+
+    # image folder for current iteration; create it if not yet
+    restored_iter_folder = f"Experiment_{exp_index}_Iteration_{iter_index}"
+    if not os.path.isdir(restored_iter_folder): os.mkdir(restored_iter_folder)
+
+    #change to images iteration folder (LEVEL 2)
+    os.chdir(restored_iter_folder)
+
+    # image folder for current pulse; create it if not yet
+    restored_pulse_folder = f"Experiment_{exp_index}_Iteration_{iter_index}_Pulse_{pulse_index}"
+    if not os.path.isdir(restored_pulse_folder): os.mkdir(restored_pulse_folder)
+    
+    #change to Fits pulse folder (LEVEL 3)
+    os.chdir(restored_pulse_folder)
+    
+    #save the image here
+    restored_file = f"{restored_pulse_folder}.png"
+    cv2.imwrite(restored_file,img_restored)
+
+        
+    #Restore the path to the image path
+    os.chdir(cur_path)
+
+
         
 def processOpenCV(pulse_index, iter_index, exp_index, img_file, parent_dir_abs):
     """
@@ -213,7 +277,15 @@ def processOpenCV(pulse_index, iter_index, exp_index, img_file, parent_dir_abs):
     # Fit the ellise
     pulse, img_color = findEdge(pulse_index, iter_index, exp_index, img, parent_dir_abs)
     
-    #save the image to file    
-    saveImage(pulse_index, iter_index, exp_index, img_color, parent_dir_abs)
+    img_color_restored = restoreColorROI(img_color, img)
     
+    if saveImages:
+        #save the image to file    
+        saveImage(pulse_index, iter_index, exp_index, img_color, parent_dir_abs)
+
+    # save the restored image to file
+    
+    if saveRestoredImages:
+        
+        saveRestoredImage(pulse_index, iter_index, exp_index, img_color_restored, parent_dir_abs)    
     return pulse

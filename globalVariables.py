@@ -38,6 +38,7 @@ raw_dir = r'DataSimplified'
 proc_dir = r'PostProcessing'
 imgs_folder = r'Images'
 fits_folder = r'Fits'
+restored_folder = r'Restored'
 figs_folder = r'Figures'
 vel_folder = r'Velocity'
 seq_file = r'testSequence.csv'
@@ -55,3 +56,5 @@ deep_debug = False
 displayImages = False
 saveImages = True
 saveFigures = True
+saveRestoredImages = True
+
