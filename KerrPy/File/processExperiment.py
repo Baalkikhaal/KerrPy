@@ -9,7 +9,7 @@ import numpy as np
 
 from globalVariables import debug, proc_dir, fits_folder, samplename
 
-from KerrPy.File.processIteration import processIteration
+from KerrPy.File.processIteration import processIteration, processIterationWithWindow
 
 
 def saveExperiment(exp_index, experiment, parent_dir_abs):
@@ -91,3 +91,43 @@ def processExperiment(exp_index, exp_dir, parent_dir_abs):
 
     return experiment
     
+def processExperimentWithWindow(static_ax, dynamic_ax, exp_index, exp_dir, parent_dir_abs):
+    """
+        pass in window along with usual processExperiment()
+    """
+    
+    if debug: print(f"    L1 processExperiment() started at E: {exp_index}")
+    
+    #Store the current location before relocating
+    cur_path = os.path.abspath(os.curdir)
+    
+    # enter the experiment directory Level 1
+    os.chdir(exp_dir)
+    
+    
+    # initialize a list for saving experiment
+    experiment = []
+    
+    # an experiment contains iterations
+    # so loop the iteration directories in the experiment
+    files = os.listdir()
+    iter_dirs = [each for each in files if os.path.isdir(each)]
+    # sort the directories by name
+    iter_dirs.sort()
+
+    # number of iterations
+    n_iter = len(iter_dirs)
+    
+    for i in np.arange(n_iter):
+        iter_index = i
+        iter_dir = iter_dirs[i]
+        iteration = processIterationWithWindow(static_ax, dynamic_ax, iter_index, exp_index, iter_dir, parent_dir_abs)
+        experiment.append(iteration)
+        
+    #save the iterations to file    
+    saveExperiment(exp_index, experiment, parent_dir_abs)
+        
+    #Restore the path
+    os.chdir(cur_path)
+
+    return experiment

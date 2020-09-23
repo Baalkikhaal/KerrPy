@@ -9,7 +9,7 @@ import numpy as np
 
 from globalVariables import debug, proc_dir, fits_folder, samplename
 
-from KerrPy.Image.processOpenCV import processOpenCV
+from KerrPy.Image.processOpenCV import processOpenCV, processOpenCVWithWindow
 
 def savePulse(pulse_index, iter_index, exp_index, pulse, parent_dir_abs):
     """
@@ -26,8 +26,11 @@ def savePulse(pulse_index, iter_index, exp_index, pulse, parent_dir_abs):
     if not os.path.isdir(proc_dir_abs): os.mkdir(proc_dir_abs)
     
     fits_dir_abs = os.path.abspath(os.path.join(proc_dir_abs,fits_folder))
+    if not os.path.isdir(fits_dir_abs): os.mkdir(fits_dir_abs)
+
     fits_root = os.path.abspath(os.path.join(fits_dir_abs,samplename))
-    
+    if not os.path.isdir(fits_root): os.mkdir(fits_root)
+
     #change to Fits root folder (LEVEL 0)
     os.chdir(fits_root)
 
@@ -75,6 +78,32 @@ def processPulse(pulse_index, iter_index, exp_index, img_file, parent_dir_abs):
     #Find the ellipse fit#
     ######################
     pulse = processOpenCV(pulse_index, iter_index, exp_index, img_file, parent_dir_abs)
+    
+    #save the pulse to file    
+    savePulse(pulse_index, iter_index, exp_index, pulse, parent_dir_abs)
+    
+    #Restore the path
+    os.chdir(cur_path)
+
+    
+    return pulse
+
+
+def processPulseWithWindow(static_ax, dynamic_ax, pulse_index, iter_index, exp_index, img_file, parent_dir_abs):
+    """
+        pass in window along with usual processPulse()
+
+    """
+    
+    if debug: print(f"            L3 processPulse() started at E:{exp_index} I:{iter_index} P:{pulse_index}")
+
+    #Store the current location before relocating
+    cur_path = os.path.abspath(os.curdir)
+    
+    ######################
+    #Find the ellipse fit#
+    ######################
+    pulse = processOpenCVWithWindow(static_ax, dynamic_ax, pulse_index, iter_index, exp_index, img_file, parent_dir_abs)
     
     #save the pulse to file    
     savePulse(pulse_index, iter_index, exp_index, pulse, parent_dir_abs)

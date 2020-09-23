@@ -9,7 +9,7 @@ import os, os.path
 
 from KerrPy.File.preConditioning import preConditioning
 from KerrPy.File.processControls import processControls
-from KerrPy.File.processSpace import processSpace
+from KerrPy.File.processSpace import processSpace, processSpaceWithWindow
 
 
 def processData():
@@ -25,6 +25,24 @@ def processData():
     controls = processControls(parent_dir_abs)
 
     space = processSpace(controls, parent_dir_abs)
+    
+    #Restore the path to the image path
+    os.chdir(cur_path)
+
+    return controls, space
+
+def processDataWithWindow(static_ax, dynamic_ax):
+    """
+        pass in window along with usual processData()
+    """
+    #Store the current location before relocating
+    cur_path = os.path.abspath(os.curdir)
+    
+    parent_dir_abs = preConditioning()
+    
+    controls = processControls(parent_dir_abs)
+
+    space = processSpaceWithWindow(static_ax, dynamic_ax, controls, parent_dir_abs)
     
     #Restore the path to the image path
     os.chdir(cur_path)

@@ -12,7 +12,7 @@ from globalVariables import debug, deep_debug, proc_dir, fits_folder, samplename
 from globalVariables import save_exps_file
 from globalVariables import raw_dir
 
-from KerrPy.File.processExperiment import processExperiment
+from KerrPy.File.processExperiment import processExperiment, processExperimentWithWindow
 
 def extractControlsFromFolderName(foldername):
     """
@@ -163,6 +163,50 @@ def processSpace(controls, parent_dir_abs):
     os.chdir(cur_path)
     
     return space
+
+
+def processSpaceWithWindow(static_ax, dynamic_ax, controls, parent_dir_abs):
+    """
+        pass in window along with usual processSpace()
+    """
+    
+    if debug: print("L0 processSpace() started")
+    
+    #Store the current location before relocating
+    cur_path = os.path.abspath(os.curdir)
+    
+    # enter the experiment directory Level 1
+    os.chdir(raw_dir)
+
+    
+    # initialize a list for saving space
+    space = []
+    
+    # a space contains experiments
+    # so loop the experiments in the controls sequence
+    n_exp = len(controls)
+
+    for i in np.arange(n_exp):
+        exp_index = i
+        exp_controls = controls[i]
+        
+        if debug: print(f"L0 E: {exp_index} = {exp_controls}")
+        
+        # find the experiment directory corresponding to experiment index
+
+        exp_dir = findExperiment(exp_controls, parent_dir_abs)
+        
+        experiment = processExperimentWithWindow(static_ax, dynamic_ax, exp_index, exp_dir, parent_dir_abs)
+        
+        space.append(experiment)
+        
+    saveSpace(space, parent_dir_abs)
+    
+    #Restore the path
+    os.chdir(cur_path)
+    
+    return space
+
 
 if __name__ == '__main__':
     foldername = 'NUCLEATE-M_IPBHx0.00_Ip-1.00E+1_tp6.50E+3_DUR CYC5'
