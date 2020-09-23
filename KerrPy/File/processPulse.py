@@ -87,3 +87,52 @@ def processPulse(pulse_index, iter_index, exp_index, img_file, parent_dir_abs):
 
     
     return pulse
+
+def processPulseWithCustomROI(list_counters, pulse_index, iter_index, exp_index, img_file, parent_dir_abs):
+    """
+        LEVEL 3
+        0. Fit the ellipse to the bubble
+        1. Save the fits
+    """
+    
+    if debug: print(f"            L3 processPulse() started at E:{exp_index} I:{iter_index} P:{pulse_index}")
+
+    #Store the current location before relocating
+    cur_path = os.path.abspath(os.curdir)
+    
+    # absolute path to the image
+    img_file_abs = os.path.abspath(os.path.join(cur_path, img_file))
+    
+    ######################
+    #Find the ellipse fit#
+    ######################
+    # pulse = processOpenCV(pulse_index, iter_index, exp_index, img_file, parent_dir_abs)
+    
+    n_params = 6
+    
+    # append the number of params to list_space_shape
+    list_counters[0][3] = n_params
+    
+    #instead of ellipse fitting, let us append the indices of the pulse, 
+    # iteration, experiment to the counters
+    
+    list_pulse_index = list_counters[1]
+    list_iter_index = list_counters[2]
+    list_exp_index = list_counters[3]
+    list_img_file = list_counters[4]
+    
+    list_pulse_index.append(pulse_index)
+    list_iter_index.append(iter_index)
+    list_exp_index.append(exp_index)
+    list_img_file.append(img_file_abs)
+    
+    #save the pulse to file    
+    # savePulse(pulse_index, iter_index, exp_index, pulse, parent_dir_abs)
+    
+    #Restore the path
+    os.chdir(cur_path)
+
+    
+    # return pulse
+    
+    return list_counters

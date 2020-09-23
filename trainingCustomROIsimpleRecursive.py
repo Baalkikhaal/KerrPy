@@ -7,6 +7,9 @@ Created on Tue Sep 22 14:55:29 2020
 
 import os, os.path
 import numpy as np
+import matplotlib as mpl
+#use interactive backend Qt5Agg
+mpl.use('Qt5Agg')
 import matplotlib.pyplot as plt
 from matplotlib.widgets import RectangleSelector
 
@@ -73,6 +76,10 @@ def saveIteration():
     
     # save the params
     savePulse(pulse_index, iter_index, exp_index, pulse, parent_dir_abs)
+    
+    # iterate the counter after the save
+    
+    i += 1
 
 
 def selectROIsimple(img):
@@ -126,20 +133,21 @@ parent_dir_abs = os.path.abspath(os.curdir)
 images_folder = os.path.abspath(os.path.join(parent_dir_abs, 'DataTraining','CustomROIDataInFocus'))
 
 n_images = len(images)
-i = -1
+i = 0
 def iterateImages():
     
     global i
-    i += 1
 
-    if i >= n_images:
-        return
-    else:
+    if i < n_images:
         
         img_file = os.path.abspath(os.path.join(images_folder, images[i]))
         img = cv2.imread(img_file, 0)
+        
+
+
         selectROIsimple(img)
         
+    return
     
 
 if __name__ == '__main__':

@@ -35,7 +35,7 @@ min_confidence  =   40.0    # minimum confidence for fit to be considered OK
 ##########################
 ##file handling parameters
 ##########################.
-raw_dir = r'DataInFocus'
+raw_dir = r'DataSimplified'
 proc_dir = r'PostProcessing'
 imgs_folder = r'Images'
 fits_folder = r'Fits'
@@ -43,7 +43,7 @@ restored_folder = r'Restored'
 figs_folder = r'Figures'
 vel_folder = r'Velocity'
 seq_file = r'testSequence.csv'
-samplename = r'DataInFocus'
+samplename = r'DataSimplifiedCustomROI'
 
 save_exps_file = 'space.npy'
 save_controls_file = 'controls.npy'

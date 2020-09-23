@@ -9,7 +9,7 @@ import numpy as np
 
 from globalVariables import debug, proc_dir, fits_folder, samplename, nImages
 
-from KerrPy.File.processPulse import processPulse
+from KerrPy.File.processPulse import processPulse, processPulseWithCustomROI
 
 def saveIteration(iter_index, exp_index, iteration, parent_dir_abs):
     """
@@ -97,3 +97,56 @@ def processIteration(iter_index, exp_index, iter_dir, parent_dir_abs):
     os.chdir(cur_path)
 
     return iteration
+
+def processIterationWithCustomROI(list_counters, iter_index, exp_index, iter_dir, parent_dir_abs):
+    """
+        LEVEL 2
+        0. Enter the iteration directory
+        1. Scan through the pulses
+        2. Return the pulses
+    """
+    
+
+    
+    if debug: print(f"        L2 processIteration() started at E:{exp_index} I:{iter_index}")
+    
+    #Store the current location before relocating
+    cur_path = os.path.abspath(os.curdir)
+    
+        
+    # enter the iteration directory Level 2
+    os.chdir(iter_dir)
+    
+    # initialize a list for saving iteration
+    # iteration = []
+    
+    # an iteration contains pulses
+    # so loop the pulses in the iterations
+    
+    # number of iterations; use global nImages to simplify looping
+    n_pulse = nImages
+    files = os.listdir()
+    files.sort()
+    images = files[0:n_pulse]   # ignore initial and final saturation image
+
+    # append the number of images to list_space_shape
+    list_counters[0][2] = n_pulse
+    
+    for i in np.arange(n_pulse):
+        pulse_index = i
+        
+        img_file = images[i]
+        
+        list_counters = processPulseWithCustomROI(list_counters, pulse_index, iter_index, exp_index, img_file, parent_dir_abs)
+        
+        # iteration.append(pulse)
+
+    #save the iteration to file    
+    # saveIteration(iter_index, exp_index, iteration, parent_dir_abs)
+        
+    #Restore the path
+    os.chdir(cur_path)
+
+    # return iteration
+    
+    return list_counters
