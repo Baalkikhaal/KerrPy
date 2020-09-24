@@ -363,8 +363,18 @@ def ConfidenceInFit(pnts, ellipse, max_norm_err_sq, DEBUG):
     
     # Count inliers (n x 2)
     n_inliers    = inliers.size
-    perc_inliers = (n_inliers * 100.0) / n_pnts
 
+    perc_inliers = 0.0    
+    
+    try:
+        
+        perc_inliers = (n_inliers * 100.0) / n_pnts
+
+    except:
+        
+        print(" ALERT! There are no edges...")
+        perc_inliers = 0.0
+        
     if DEBUG: print(f"                c(fit): {np.int(perc_inliers)}%")
     return perc_inliers, inlier_pnts, norm_err
     

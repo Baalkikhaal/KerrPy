@@ -188,6 +188,55 @@ def saveIteration():
     i += 1
 
 
+def discardIteration():
+    global i
+    print(f"i is {i}")
+    global list_pulse_index
+    global list_iter_index
+    global list_exp_index
+    global parent_dir_abs
+    global space_filepath
+    
+    
+    # read the image
+    img_file = 'img.npy'
+    img = np.load(img_file)
+    
+    #load the space
+    space = np.load(space_filepath)
+    
+    # img_crop = np.load('img_crop.npy')
+    
+    pulse_index = list_pulse_index[i]
+    iter_index = list_iter_index[i]
+    exp_index = list_exp_index[i]
+    
+    # pulse, img_color, customROI = findEdgeCustomROI(pulse_index, iter_index, exp_index, img, parent_dir_abs)
+
+    pulse = np.array([0, np.nan, np.nan, np.nan, np.nan, np.nan])
+    # save the params to space
+    
+    space[exp_index, iter_index, pulse_index] = pulse
+    
+    # save the space to space_file again!!!
+    
+    np.save(space_filepath, space)
+    
+    
+    #save the image to file    
+    saveImage(pulse_index, iter_index, exp_index, img, parent_dir_abs)
+    
+    # save the restored image to file
+    saveRestoredImage(pulse_index, iter_index, exp_index, img, parent_dir_abs)
+    
+    
+    # save the params
+    savePulse(pulse_index, iter_index, exp_index, pulse, parent_dir_abs)
+    
+    # iterate the counter after the save
+    
+    i += 1
+
 ### TODO all this saving to and loading from .npy files is due to unable to
 # pass as arguments to toggle_selector key press event handler!!
 # I need to implement a more cleaner code
@@ -195,11 +244,18 @@ def toggle_selector(event):
     # toggle_selector.RS.set_active(False)
 
     print('Key pressed.')
-    if event.key in ['Q', 'q'] and toggle_selector.RS.active:
+    if event.key in ['N', 'n'] and toggle_selector.RS.active:
         print('RectangleSelector deactivated.')
         toggle_selector.RS.set_active(False)
 
         saveIteration()
+        iterateImages()
+
+    if event.key in ['D', 'd'] and toggle_selector.RS.active:
+        print('RectangleSelector deactivated.')
+        toggle_selector.RS.set_active(False)
+
+        discardIteration()
         iterateImages()
         
     if event.key in ['A', 'a'] and not toggle_selector.RS.active:
