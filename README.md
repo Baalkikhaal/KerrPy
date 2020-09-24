@@ -25,8 +25,8 @@ An openCV based Python project for processing Kerr microscopy image. KerrPy is u
 core packages |	image processing packages | IDE packages
 --- | ---- | ---
 	numpy	| 		opencv	|	spyder
-	scipy	|
-	matplotlib	|
+	scipy	|	|
+	matplotlib	|	|
 
 Anaconda maintains "channels" for storing repositories.
 Core packages are available in standard/default channel.
