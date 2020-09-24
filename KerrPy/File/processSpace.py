@@ -21,10 +21,9 @@ def extractControlsFromFolderName(foldername):
         
         and extracts Hx = 0, Hz = -22 tp = 120
         
-        # TODO : NOT working for float fields!
-                For a resolution of 0.5 Oe we need precision of 1
-                For this use formating '{:.1f}'.format(float)
-                Reference : https://pyformat.info/
+        For a resolution of 0.5 Oe we need precision of 1
+        For this use formating '{:.1f}'.format(float)
+        Reference : https://pyformat.info/
     """
     
     splits = foldername.split('_')

@@ -217,10 +217,6 @@ def drawIterationFigures(space, controls, parent_dir_abs):
         0. Iterate over all the iterations of all experiments
         
         1. Save the figures to global figs_folder
-    
-        ALERT! is called only when the saveFigures is True
-        
-        # TODO draw the linear fits to the data
     """
 
     

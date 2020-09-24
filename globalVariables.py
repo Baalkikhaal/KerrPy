@@ -9,7 +9,7 @@ Created on Sat Sep 12 17:17:32 2020
 #######################
 ##training parameters##
 #######################
-nucleation_down =   1       # 0 for nucleation up
+nucleation_down =   True       # False for nucleation up
 nImages         =   9       # number of pulses in an iteration
 center_ROI      =   (511,672)  #center of the object to be identified
 adaptive_ROI    =   False    # flag for adaptive ROI

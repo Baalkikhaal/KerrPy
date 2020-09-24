@@ -23,10 +23,9 @@ def getControls():
         use flag ndmin = 2
         Reference : https://stackoverflow.com/questions/13544639/how-to-check-if-an-array-is-2d
         
-        # TODO : NOT working for float fields
-                For a resolution of 0.5 Oe we need precision of 1
-                For this use formating '{:.1f}'.format(float)
-                Reference : https://pyformat.info/
+        For a resolution of 0.5 Oe we need precision of 1
+        For this use formating '{:.1f}'.format(float)
+        Reference : https://pyformat.info/
     """
     exp_seq = np.loadtxt(seq_file, delimiter=',',skiprows=1, ndmin= 2 )
     N = exp_seq.shape[0]

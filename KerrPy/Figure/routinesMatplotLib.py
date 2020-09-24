@@ -195,7 +195,7 @@ def plotIteration(exp_index, iter_index, iteration, control):
         
         Return the figures for the plots.
         
-        # TODO plot linear fits to the data
+        # TODO return linear fit params to the data
     """
     
     # extracts the controls for the iteration
