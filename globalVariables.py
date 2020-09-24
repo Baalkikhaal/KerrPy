@@ -37,6 +37,8 @@ min_confidence  =   40.0    # minimum confidence for fit to be considered OK
 ##########################.
 raw_dir = r'DataSimplified'
 proc_dir = r'PostProcessing'
+temp_dir = r'Temp'
+
 imgs_folder = r'Images'
 fits_folder = r'Fits'
 restored_folder = r'Restored'

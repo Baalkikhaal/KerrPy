@@ -1,9 +1,6 @@
 # ignore the following top level files
 
-img.npy
-img_crop.npy
-coordinates.npy
-
+Temp/
 
 ########## Python gitignore ##############
 

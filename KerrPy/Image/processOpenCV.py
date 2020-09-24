@@ -12,7 +12,7 @@ import cv2
 
 
 from globalVariables import debug, deep_debug
-from globalVariables import proc_dir, imgs_folder, restored_folder, samplename
+from globalVariables import proc_dir, temp_dir, imgs_folder, restored_folder, samplename
 from globalVariables import displayImages, saveImages, saveRestoredImages
 from globalVariables import nucleation_down
 from globalVariables import center_ROI, adaptive_ROI, aspr_ROI, adaptive_ROI_seq, custom_ROI
@@ -200,13 +200,7 @@ def findEdge(pulse_index, iter_index, exp_index, img, parent_dir_abs):
         
     return pulse, img_color
 
-def findEdgeCustomROI(pulse_index, iter_index, exp_index, img, parent_dir_abs):
-
-    # read the coordinates of CustomROI from "coordinates.npy" at parent dir
-    
-    coords_file = os.path.abspath(os.path.join(parent_dir_abs, 'coordinates.npy'))
-
-    coords  = np.load(coords_file)
+def findEdgeCustomROI(coords, pulse_index, iter_index, exp_index, img, parent_dir_abs):
 
     # interchange rows and columns to reflect coordinate transpose of openCV and numpy
     customROI= np.array([coords[1][0], coords[0][0], coords[1][2], coords[0][2]])
@@ -379,8 +373,13 @@ def processOpenCV(pulse_index, iter_index, exp_index, img_file, parent_dir_abs):
         pulse, img_color = findEdge(pulse_index, iter_index, exp_index, img, parent_dir_abs)
 
     elif custom_ROI:
+        # read the coordinates of CustomROI from "coordinates.npy" at parent dir
+        
+        coords_file = os.path.abspath(os.path.join(parent_dir_abs, temp_dir, 'coordinates.npy'))
+    
+        coords  = np.load(coords_file)
         # Fit the ellise with rectROI
-        pulse, img_color, customROI = findEdgeCustomROI(pulse_index, iter_index, exp_index, img, parent_dir_abs)
+        pulse, img_color, customROI = findEdgeCustomROI(coords, pulse_index, iter_index, exp_index, img, parent_dir_abs)
         
     # initialize restored image
     img_restored = np.zeros(img.shape)
