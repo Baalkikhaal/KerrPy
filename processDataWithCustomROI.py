@@ -230,10 +230,6 @@ def saveIteration():
     global parent_dir_abs
     global space_file
     
-    # read the coordinates
-    coordinates = np.load('coordinates.npy')
-    print(f"coordinates: {coordinates}")  
-    
     # read the pulse
     pulse = np.load(pulse_file)
     
