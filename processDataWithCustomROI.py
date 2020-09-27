@@ -11,6 +11,7 @@ import numpy as np
 import matplotlib as mpl
 #use interactive backend Qt5Agg
 mpl.use('Qt5Agg')
+mpl.style.use('myMatplotlibStylesheet.mplstyle')
 import matplotlib.pyplot as plt
 from matplotlib.widgets import RectangleSelector
 
