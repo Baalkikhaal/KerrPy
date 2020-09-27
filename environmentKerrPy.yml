@@ -1,0 +1,9 @@
+name: envKerr
+channels:
+  - defaults
+dependencies:
+  - numpy
+  - scipy
+  - matplotlib
+  - opencv
+  - spyder

@@ -11,6 +11,7 @@ import numpy as np
 import matplotlib as mpl
 #use interactive backend Qt5Agg
 mpl.use('Qt5Agg')
+mpl.style.use('myMatplotlibStylesheet.mplstyle')
 import matplotlib.pyplot as plt
 from matplotlib.widgets import RectangleSelector
 
@@ -229,10 +230,6 @@ def saveIteration():
     global list_exp_index
     global parent_dir_abs
     global space_file
-    
-    # read the coordinates
-    coordinates = np.load('coordinates.npy')
-    print(f"coordinates: {coordinates}")  
     
     # read the pulse
     pulse = np.load(pulse_file)
