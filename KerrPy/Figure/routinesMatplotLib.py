@@ -7,9 +7,9 @@ Created on Mon Sep 14 18:07:55 2020
 
 
 import matplotlib as mpl
-mpl.style.use('myMatplotlibStylesheet.mplstyle')
+# mpl.style.use('myMatplotlibStylesheet.mplstyle')
 mpl.rcParams['text.usetex'] =  True
-mpl.use('pdf', force=True)  # set noninteractive backend 'pdf'
+# mpl.use('pdf', force=True)  # set noninteractive backend 'pdf'
 # to check the available non gui backends
 #   non_gui_backends = mpl.rcsetup.non_interactive_bk
 #   print(non_gui_backends)
@@ -195,7 +195,7 @@ def plotIteration(exp_index, iter_index, iteration, control):
         
         Return the figures for the plots.
         
-        # TODO plot linear fits to the data
+        # TODO return linear fit params to the data
     """
     
     # extracts the controls for the iteration

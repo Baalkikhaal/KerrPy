@@ -214,7 +214,7 @@ writeImage("09_FitEllipse.png", img_color)
 
 # restore the ROI onto the original image
 
-img_color_restored = restoreColorROI(img_color, img, adaptive_ROI)
+img_color_restored = restoreColorROI(img_color, img)
 
 writeImage("10_restoredROI.png", img_color_restored)
 

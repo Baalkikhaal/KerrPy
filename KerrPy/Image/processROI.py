@@ -226,6 +226,7 @@ def restoreColorROI(img_color, img_background):
         onto the background
     """
     ROI = img_color.shape
+
     x_width = ROI[0]
     y_width = ROI[1]
     
@@ -239,6 +240,49 @@ def restoreColorROI(img_color, img_background):
     # origin of the ROI in absolute coordinates
     x0 = center_ROI[0] - x_width//2
     y0 = center_ROI[1] - y_width//2
+    
+    # find the points in the colored crop image which are non zero
+    
+    pnts = np.transpose(np.asarray(np.nonzero(img_color)))
+
+    # print(f"pnts: {pnts}")
+    
+    # loop over the non zero indices of the crop and appropriately,
+    # set the color coordinates in absolute pixels in restored image
+    
+    for row, col, color in pnts:
+        abs_row = x0 + row
+        abs_col = y0 + col
+        
+        img_color_restored[abs_row][abs_col] = img_color[row][col]
+        
+    return img_color_restored
+
+def restoreColorCustomROI(img_color, img_background, customROI):
+    """
+        Restore the colored crop image with ellipse fit
+        
+        onto the background
+    """
+    
+    
+    # x_width = customROI[2] - customROI[0]
+    # y_width = customROI[3] - customROI[1]
+    
+    # transpose the coordinates as openCV and numpy coordinate systems are tranpose to each other
+    origin_x_customROI = customROI[0]
+    origin_y_customROI = customROI[1]
+    
+    img_color_restored = np.zeros((img_background.shape[0],img_background.shape[1],3), dtype=np.uint8)
+    
+    img_color_restored[:,:,0] = img_background 
+    img_color_restored[:,:,1] = img_background 
+    img_color_restored[:,:,2] = img_background 
+
+    
+    # origin of the ROI in absolute coordinates
+    x0 = origin_x_customROI
+    y0 = origin_y_customROI
     
     # find the points in the colored crop image which are non zero
     
