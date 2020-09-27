@@ -12,11 +12,14 @@ import cv2
 
 
 from globalVariables import debug, deep_debug
+
 from globalVariables import proc_dir, temp_dir, imgs_folder, restored_folder, samplename
+
 from globalVariables import displayImages, saveImages, saveRestoredImages
 from globalVariables import nucleation_down
 from globalVariables import center_ROI, adaptive_ROI, aspr_ROI, adaptive_ROI_seq, custom_ROI
 from globalVariables import max_norm_err_sq
+
 
 from KerrPy.Image.processROI import processROI, restoreColorROI, restoreColorCustomROI
 
@@ -248,13 +251,16 @@ def saveImage(pulse_index, iter_index, exp_index, img_color, parent_dir_abs):
 
     
     if debug: print("            L3 saveImage() saving image")
-    
+
     proc_dir_abs = os.path.abspath(os.path.join(parent_dir_abs, proc_dir))
     if not os.path.isdir(proc_dir_abs): os.mkdir(proc_dir_abs)
-    
+
+
     # image fits folder root
     img_dir_abs = os.path.abspath(os.path.join(proc_dir_abs, imgs_folder))
     if not os.path.isdir(img_dir_abs): os.mkdir(img_dir_abs)
+
+ 
 
     img_root = os.path.abspath(os.path.join(img_dir_abs,samplename))
     if not os.path.isdir(img_root): os.mkdir(img_root)
@@ -290,7 +296,7 @@ def saveImage(pulse_index, iter_index, exp_index, img_color, parent_dir_abs):
         
     #Restore the path to the image path
     os.chdir(cur_path)
-    
+ 
 def saveRestoredImage(pulse_index, iter_index, exp_index, img_restored, parent_dir_abs):
     """
         If global flag restoreImages is True, then save the img_color
@@ -356,7 +362,8 @@ def saveRestoredImage(pulse_index, iter_index, exp_index, img_restored, parent_d
         
     #Restore the path to the image path
     os.chdir(cur_path)
-        
+
+
         
 def processOpenCV(pulse_index, iter_index, exp_index, img_file, parent_dir_abs):
     """
@@ -403,4 +410,3 @@ def processOpenCV(pulse_index, iter_index, exp_index, img_file, parent_dir_abs):
         saveRestoredImage(pulse_index, iter_index, exp_index, img_restored, parent_dir_abs)
     
     return pulse
-

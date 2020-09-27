@@ -166,7 +166,7 @@ def findAdaptiveROI(pulse_index, iter_index, exp_index, img, parent_dir_abs):
 
         img_background = np.zeros([1022,1344], dtype = np.uint8)
         
-        img_restored = restoreROI(img_med, img_background, ROI)
+        img_restored = restoreROI(img_med, img_background)
         
         maximum,rel_strength, fig_mod_analysis    =   modalAnalysis(img_med, img_restored, ROI)    #strength is zero if distribution is unimodal and close to zero if the foreground is very small compared to background or vice versa
         
@@ -200,8 +200,9 @@ def findAdaptiveROI(pulse_index, iter_index, exp_index, img, parent_dir_abs):
     return optimum_ROI
 
 
-def restoreROI(cropimg, img_background, ROI):
+def restoreROI(cropimg, img_background):
     ''' Restore the cropped image onto the 1022 x 1344 canvas'''
+    ROI = cropimg.shape
     x_width = ROI[0]
     y_width = ROI[1]
     img_restored = img_background
@@ -225,7 +226,7 @@ def restoreColorROI(img_color, img_background):
         onto the background
     """
     ROI = img_color.shape
-    
+
     x_width = ROI[0]
     y_width = ROI[1]
     
