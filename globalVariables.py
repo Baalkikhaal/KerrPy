@@ -23,6 +23,8 @@ kernel_median   =   5       # kernel for median filtering ! should be ODD
                             # typical values 3, 5, 7
 kernel_speckless=   9       # kernel for opening and closing! should be ODD
                             # typical values 7, 9, 11
+                            
+speckless_second = True     # True if second level of speckle removal needed
 kernel_speckless_second = 15    # second level opening and closing
                             # ! should be ODD
 max_norm_err_sq =   20.0    # maximum allowed normalized error
