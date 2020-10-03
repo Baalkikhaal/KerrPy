@@ -232,7 +232,7 @@ def scaleVelocity(velocity_space, controls):
     return velocity_um_per_sec, prefix
            
 
-def processVelocity(parent_dir_abs):
+def processVelocity(parent_dir_abs, **kwargs):
     """
         find the velocity of the ellipse
         
@@ -240,7 +240,7 @@ def processVelocity(parent_dir_abs):
     """
     
     # extract controls and space
-    controls, space = loadFits()
+    controls, space = loadFits(**kwargs)
     
     # filter the space
     filtered_space = filterSpace(space)
