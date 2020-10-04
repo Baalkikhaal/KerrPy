@@ -328,12 +328,12 @@ def drawSpaceFigures(space, controls, parent_dir_abs):
     saveFigsSpace( avg_space, list_figs_files, list_figs, parent_dir_abs)
 
 
-def processFigures(parent_dir_abs):
+def processFigures(parent_dir_abs, **kwargs):
     """
         Plot the figures and save the figures
     """
     # extract controls and space
-    controls, space = loadFits()
+    controls, space = loadFits(**kwargs)
     
     # filter the space
     filtered_space = filterSpace(space)
