@@ -8,6 +8,7 @@ Created on Sat Sep 12 17:12:58 2020
 import os, os.path
 import numpy as np
 
+from hashlib import sha1
 
 from globalVariables import debug, proc_dir, figs_folder, samplename
 from globalVariables import saveFigures
@@ -35,7 +36,7 @@ def extractSubspace(list_exp_indices, space ):
 
 
     
-def saveFigsSpace( avg_space, list_figs_files, list_figs, parent_dir_abs):
+def saveFigsSpace( avg_space, prefix, list_figs_files, list_figs, parent_dir_abs):
     """
         0. Save list of figs
         1. Save the iteration parameters as csv file.
@@ -58,14 +59,25 @@ def saveFigsSpace( avg_space, list_figs_files, list_figs, parent_dir_abs):
     #change to images root folder (LEVEL 0)
     os.chdir(figs_root)
 
-    prefix = "Space_"
+    #hash the prefix
+    encoded_prefix = prefix.encode(encoding='utf-8')
+    hash_prefix = sha1(encoded_prefix).hexdigest()
+    
+    #save the prefix to file named as hash_prefix
+    with open(f'{hash_prefix}.txt', 'w') as f:
+        f.write(prefix)
+    
+    # use first 6 characters as prefix for velocity file
+    prefix_hash_prefix = hash_prefix[0:6]
+
+    final_prefix = f"Space_{prefix_hash_prefix}_"
     
     for i in np.arange(6):
         
         fig = list_figs[i]
         suffix = list_figs_files[i]
         
-        fig_filename = f"{prefix}_{suffix}"
+        fig_filename = f"{final_prefix}_{suffix}"
         fig_filename_png = f"{fig_filename}.png"
         fig_filename_pdf = f"{fig_filename}.pdf"
 
@@ -75,7 +87,7 @@ def saveFigsSpace( avg_space, list_figs_files, list_figs, parent_dir_abs):
         
 
         # save the space params as experiment by images as .csv file
-        exp_params_filename = f"{prefix}_{suffix}_parameters.csv"
+        exp_params_filename = f"{final_prefix}_{suffix}_parameters.csv"
         surface2D = avg_space[:,0,:,i]
     
         # number of images
@@ -321,11 +333,11 @@ def drawSpaceFigures(space, controls, parent_dir_abs):
         avg_space[i, 0] = avg_iteration
         
     #plot the figures of the experiment
-    list_figs, list_figs_files = plotSpace(avg_space, controls)
+    list_figs, prefix, list_figs_files = plotSpace(avg_space, controls)
 
     # save the list of figures and experiment parameters
         
-    saveFigsSpace( avg_space, list_figs_files, list_figs, parent_dir_abs)
+    saveFigsSpace( avg_space, prefix, list_figs_files, list_figs, parent_dir_abs)
 
 
 def processFigures(parent_dir_abs, **kwargs):

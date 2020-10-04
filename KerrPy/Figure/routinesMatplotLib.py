@@ -482,6 +482,17 @@ def plotSpace(avg_space, controls):
 
     if debug: print(f"Plotting 2D plot for the subspace of experiment given by \n {controls}")
 
+    # number of experiments
+    n_exp = avg_space.shape[0]
+
+    # since we can extract anysubspace let us add
+    # prefix reflecting all the experiments in the subspace
+    
+    prefix = ''
+    for j in np.arange(n_exp):
+        prefix += f'{controls[j][1]}_'
+
+
     # loop over the 6 parameters c, a, b, x_c, y_c, o 
     for i in np.arange(6):
         
@@ -490,8 +501,6 @@ def plotSpace(avg_space, controls):
         # of size 1
         surface3D = avg_space[:,0,:,:]
         
-        # number of experiments
-        n_exp = surface3D.shape[0]
         
         #from the above 3D surface, we need extract
         # 2D surface for each parameter c, x_c, y_c, a, b, o
@@ -535,22 +544,16 @@ def plotSpace(avg_space, controls):
         #append the figure to list
         list_figs.append(fig)
         
-        # since we can extract anysubspace let us add
-        # prefix reflecting all the experiments in the subspace
-        
-        prefix = ''
-        for j in np.arange(n_exp):
-            prefix += f'{controls[j][1]}_'
 
         suffix = labels_2D[i][3]
         
-        fits_2D_filename = f'{prefix}_{suffix}'
+        fits_2D_filename = f'{suffix}'
         
         #append the fig filename to list
         list_figs_files.append(fits_2D_filename)
     
     print(list_figs_files)
 
-    return list_figs, list_figs_files
+    return list_figs, prefix, list_figs_files
 
 

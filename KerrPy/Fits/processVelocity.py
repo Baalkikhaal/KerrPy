@@ -8,6 +8,8 @@ Created on Fri Sep 18 17:45:22 2020
 import os,os.path
 import numpy as np
 
+from hashlib import sha1
+
 from globalVariables import debug, proc_dir, vel_folder, samplename
 
 from KerrPy.Fits.loadFits import loadFits
@@ -18,7 +20,9 @@ from KerrPy.Fits.filterSpace import filterSpace
 def saveVelocity( velocity, prefix, parent_dir_abs):
     """
         0. Save velocity array
-        1. Save the iteration parameters as csv file.
+        1. Hash the prefix so that long prefixes canbe avoided
+            to prevent long filepath errors in Windows OS.
+        2. Save the iteration parameters as csv file.
     """
     
     #Store the current location before relocating
@@ -38,8 +42,19 @@ def saveVelocity( velocity, prefix, parent_dir_abs):
     #change to images root folder (LEVEL 0)
     os.chdir(vel_root)
 
+    #hash the prefix
+    encoded_prefix = prefix.encode(encoding='utf-8')
+    hash_prefix = sha1(encoded_prefix).hexdigest()
+    
+    #save the prefix to file named as hash_prefix
+    with open(f'{hash_prefix}.txt', 'w') as f:
+        f.write(prefix)
+    
+    # use first 6 characters as prefix for velocity file
+    prefix_hash_prefix = hash_prefix[0:6]
+    
     # save the velocity array
-    vel_file = f"velocity_{prefix}.csv"
+    vel_file = f"velocity_{prefix_hash_prefix}.csv"
     
     header_vel_csv = "Hix (Oe),Hop (Oe),tp (ms),exp_index,V_{xc} (\mu m s^{-1}) , V_{yc} (\mu m s^{-1}), V_{a} (\mu m s^{-1}), b (\mu m s^{-1})"
     
