@@ -7,8 +7,12 @@ Created on Mon Sep 14 18:07:55 2020
 
 
 import matplotlib as mpl
-# mpl.style.use('myMatplotlibStylesheet.mplstyle')
-mpl.rcParams['text.usetex'] =  True
+
+from globalVariables import mpl_stylesheet, use_tex
+
+mpl.style.use(mpl_stylesheet)
+mpl.rcParams['text.usetex'] =  use_tex
+
 # mpl.use('pdf', force=True)  # set noninteractive backend 'pdf'
 # to check the available non gui backends
 #   non_gui_backends = mpl.rcsetup.non_interactive_bk
@@ -238,7 +242,7 @@ def plotIteration(exp_index, iter_index, iteration, control):
         #initialize a figure
         fig, ax = plt.subplots(1,1)
         
-        mpl.style.use('myMatplotlibStylesheet.mplstyle')
+        # mpl.style.use('myMatplotlibStylesheet.mplstyle')
         mpl.rcParams['figure.subplot.right'] = 0.9
         mpl.rcParams['figure.subplot.top'] = 0.8
         mpl.rcParams['legend.fontsize'] = 6
@@ -363,7 +367,7 @@ def plotExperiment(exp_index, avg_iteration, control):
         #initialize a figure
         fig, ax = plt.subplots(1,1)
         
-        mpl.style.use('myMatplotlibStylesheet.mplstyle')
+        # mpl.style.use('myMatplotlibStylesheet.mplstyle')
         mpl.rcParams['figure.subplot.right'] = 0.9
         mpl.rcParams['figure.subplot.top'] = 0.8
         mpl.rcParams['legend.fontsize'] = 6

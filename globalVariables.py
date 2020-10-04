@@ -61,3 +61,9 @@ displayImages = False
 saveImages = True
 saveFigures = True
 saveRestoredImages = True
+
+############################
+#######matplotlib parameters
+############################
+mpl_stylesheet = 'myMatplotlibStylesheet.mplstyle'
+use_tex = False

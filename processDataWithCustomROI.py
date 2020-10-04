@@ -11,8 +11,13 @@ import numpy as np
 import matplotlib as mpl
 #use interactive backend Qt5Agg
 mpl.use('Qt5Agg')
-mpl.style.use('myMatplotlibStylesheet.mplstyle')
+from globalVariables import mpl_stylesheet, use_tex
+
+mpl.style.use(mpl_stylesheet)
+mpl.rcParams['text.usetex'] =  use_tex
+
 import matplotlib.pyplot as plt
+
 from matplotlib.widgets import RectangleSelector
 
 import cv2
