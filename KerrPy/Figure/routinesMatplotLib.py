@@ -222,31 +222,30 @@ def plotIteration(exp_index, iter_index, iteration, control):
     # labels for each of the figures
     #1D list of strings with rows as channels and columns as title, xlabel, ylabel
     list_labels_1D = [
-                        [r'Confidence', r'$\mathrm{n_{pulse}}$', 
-                             r'Confidence $c~(\mathrm{in}~\%)$', r'Confidence'],
-                        [r'X-Center', r'$\mathrm{n_{pulse}}$',
+                        [r'Confidence', r'$n_{pulse}$', 
+                             r'Confidence $c$ (in $\%$)', r'Confidence'],
+                        [r'X-Center', r'$n_{pulse}$',
                              r'$x_{c} $(in pixels)', r'X-Center'],
-                        [r'Y-Center', r'$\mathrm{n_{pulse}}$', 
+                        [r'Y-Center', r'$n_{pulse}$', 
                              r'$y_{c} $(in pixels)', r'Y-Center'], 
-                        [r'Semi Major Axis', r'$\mathrm{n_{pulse}}$',
+                        [r'Semi Major Axis', r'$n_{pulse}$',
                              r'$a$ (in pixels)', r'Semi-Major-Axis'],
-                        [r'Semi Minor Axis', r'$\mathrm{n_{pulse}}$',
+                        [r'Semi Minor Axis', r'$n_{pulse}$',
                              r'$b$ (in pixels)', r'Semi-Minor-Axis'],
-                        [r'Orientation', r'$\mathrm{n_{pulse}}$',
-                             r'Orientation $o~(\mathrm{in}~^{\circ})$', r'Orientation']
+                        [r'Orientation', r'$n_{pulse}$',
+                             r'Orientation $o$ (in $^{\circ}$)', r'Orientation']
                     ]
 
     # loop over the 6 parameters c, a, b, x_c, y_c, o 
     for i in np.arange(6):
-        
-        #initialize a figure
-        fig, ax = plt.subplots(1,1)
-        
+
         # mpl.style.use('myMatplotlibStylesheet.mplstyle')
         mpl.rcParams['figure.subplot.right'] = 0.9
         mpl.rcParams['figure.subplot.top'] = 0.8
         mpl.rcParams['legend.fontsize'] = 6
         
+        #initialize a figure
+        fig, ax = plt.subplots(1,1)
         
         ax.set_title(list_labels_1D[i][0])
         ax.set_xlabel(list_labels_1D[i][1])
@@ -347,31 +346,30 @@ def plotExperiment(exp_index, avg_iteration, control):
     # labels for each of the figures
     #1D list of strings with rows as channels and columns as title, xlabel, ylabel
     list_labels_1D = [
-                        [r'Confidence', r'$\mathrm{n_{pulse}}$', 
-                             r'Confidence $c~(\mathrm{in}~\%)$', r'Confidence'],
-                        [r'X-Center', r'$\mathrm{n_{pulse}}$',
+                        [r'Confidence', r'$n_{pulse}$', 
+                             r'Confidence $c$ (in $\%$)', r'Confidence'],
+                        [r'X-Center', r'$n_{pulse}$',
                              r'$x_{c} $(in pixels)', r'X-Center'],
-                        [r'Y-Center', r'$\mathrm{n_{pulse}}$', 
+                        [r'Y-Center', r'$n_{pulse}$', 
                              r'$y_{c} $(in pixels)', r'Y-Center'], 
-                        [r'Semi Major Axis', r'$\mathrm{n_{pulse}}$',
+                        [r'Semi Major Axis', r'$n_{pulse}$',
                              r'$a$ (in pixels)', r'Semi-Major-Axis'],
-                        [r'Semi Minor Axis', r'$\mathrm{n_{pulse}}$',
+                        [r'Semi Minor Axis', r'$n_{pulse}$',
                              r'$b$ (in pixels)', r'Semi-Minor-Axis'],
-                        [r'Orientation', r'$\mathrm{n_{pulse}}$',
-                             r'Orientation $o~(\mathrm{in}~^{\circ})$', r'Orientation']
+                        [r'Orientation', r'$n_{pulse}$',
+                             r'Orientation $o$ (in $^{\circ}$)', r'Orientation']
                     ]
 
     # loop over the 6 parameters c, a, b, x_c, y_c, o 
     for i in np.arange(6):
-        
-        #initialize a figure
-        fig, ax = plt.subplots(1,1)
-        
+
         # mpl.style.use('myMatplotlibStylesheet.mplstyle')
         mpl.rcParams['figure.subplot.right'] = 0.9
         mpl.rcParams['figure.subplot.top'] = 0.8
         mpl.rcParams['legend.fontsize'] = 6
         
+        #initialize a figure
+        fig, ax = plt.subplots(1,1)
         
         ax.set_title(list_labels_1D[i][0])
         ax.set_xlabel(list_labels_1D[i][1])
@@ -466,17 +464,17 @@ def plotSpace(avg_space, controls):
     # labels for each of the figures
     #2D list of strings with rows as channels and columns as title, xlabel, ylabel
     labels_2D = [
-                    [r'Confidence $c~(\mathrm{in}~\%)$', r'$\mathrm{n_{pulse}}$',
+                    [r'Confidence $c$ (in $\%$)', r'$n_{pulse}$',
                              r'$[ H_{x}, H_{z}, \Delta t ]$  (in [Oe, Oe, ms])', r'Confidence'],
-                    [r'X-Center $x_{c} $(in pixels)', r'$\mathrm{n_{pulse}}$',
+                    [r'X-Center $x_{c} $(in pixels)', r'$n_{pulse}$',
                              r'$[ H_{x}, H_{z}, \Delta t ]$  (in [Oe, Oe, ms])', r'X-Center'],
-                    [r'Y-Center $y_{c} $(in pixels)', r'$\mathrm{n_{pulse}}$',
+                    [r'Y-Center $y_{c} $(in pixels)', r'$n_{pulse}$',
                              r'$[ H_{x}, H_{z}, \Delta t ]$  (in [Oe, Oe, ms])',r'Y-Center'],
-                    [r'Semi Major Axis $a$ (in pixels)', r'$\mathrm{n_{pulse}}$',
+                    [r'Semi Major Axis $a$ (in pixels)', r'$n_{pulse}$',
                              r'$[ H_{x}, H_{z}, \Delta t ]$  (in [Oe, Oe, ms])', r'Semi-Major-Axis'],
-                    [r'Semi Minor Axis $b$ (in pixels)', r'$\mathrm{n_{pulse}}$',
+                    [r'Semi Minor Axis $b$ (in pixels)', r'$n_{pulse}$',
                              r'$[ H_{x}, H_{z}, \Delta t ]$  (in [Oe, Oe, ms])',r'Semi-Minor-Axis'], 
-                    [r'Orientation $o~(\mathrm{in}~^{\circ})$', r'$\mathrm{n_{pulse}}$',
+                    [r'Orientation $o$ (in $^{\circ}$)', r'$n_{pulse}$',
                              r'$[ H_{x}, H_{z}, \Delta t ]$  (in [Oe, Oe, ms])', r'Orientation']
                 ]
 
@@ -509,9 +507,6 @@ def plotSpace(avg_space, controls):
         # number of images
         nImages = surface2D.shape[1]
         
-        #initialize a figure
-        fig, ax = plt.subplots(1,1)
-        
         mpl.rcParams['figure.figsize'] = 6.0, 6.0
         mpl.rcParams['figure.subplot.left'] = 0.4
         mpl.rcParams['figure.subplot.right'] = 0.9
@@ -520,6 +515,10 @@ def plotSpace(avg_space, controls):
         #disable the minor ticks as they are NOT needed to interpret the surface plot
         mpl.rcParams['xtick.minor.visible'] = False
         mpl.rcParams['ytick.minor.visible'] = False
+
+        #initialize a figure
+        fig, ax = plt.subplots(1,1)
+        
         
         ax.set_title(labels_2D[i][0]) 
         ax.set_xlabel(labels_2D[i][1])
