@@ -20,9 +20,9 @@ import cv2
 
 # sys.path.append(KerrPy_folder)
 
-# from ..KerrPy.Image.processOpenCV import findEdge, saveImage
+from KerrPy.Image.processOpenCV import saveImage, findEdgeCustomROI, saveRestoredImage
 
-from ..KerrPy.Image.processROI import restoreColorROI
+from KerrPy.Image.processROI import restoreColorROI
 
     
 def toggle_selector(event):
@@ -55,20 +55,24 @@ def saveIteration():
     # read the image
     img = np.load('img.npy')
     
-    img_crop = np.load('img_crop.npy')
     
     
     pulse_index = list_pulse_index[i]
     iter_index = list_iter_index[i]
     exp_index = list_exp_index[i]
     
-    pulse, img_color = findEdge(pulse_index, iter_index, exp_index, img_crop, parent_dir_abs)
+    pulse, img_color, customROI = findEdgeCustomROI(coordinates, pulse_index, iter_index, exp_index, img, parent_dir_abs)
 
     
     img_restored = restoreColorROI(img_color, img)
-        
+    
+    # save the restored image to file
+    saveRestoredImage(pulse_index, iter_index, exp_index, img_restored, parent_dir_abs) 
+    
     #save the image to file    
     saveImage(pulse_index, iter_index, exp_index, img_color, parent_dir_abs)
+    
+    i += 1
 
 def selectROIsimple(img):
     
@@ -117,27 +121,24 @@ def selectROIsimple(img):
     
     
     
-images = ['wololo.jpg', 'testBigDomain.png']
+images = ['testSmallDomain.png', 'testBigDomain.png']
 
-pulse_index = [0,1]
-iter_index = [0,1]
-exp_index = [0,1]
+list_pulse_index = [0,1]
+list_iter_index = [0,1]
+list_exp_index = [0,1]
 parent_dir_abs = os.curdir
 
 n_images = len(images)
 i = 0
 def iterateImages():
     global i
-    if i >= n_images:
-        return
-    else:
-        
+    if i < n_images:
         img_file = images[i]
-        img = cv2.imread(img_file)
+        img = cv2.imread(img_file, 0)
         selectROIsimple(img)
+    else:
+        return
         
-        i += 1
-    
 
 if __name__ == '__main__':
     # img = cv2.imread('wololo.jpg')

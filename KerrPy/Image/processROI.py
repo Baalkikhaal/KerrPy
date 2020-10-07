@@ -258,6 +258,31 @@ def restoreColorROI(img_color, img_background):
         
     return img_color_restored
 
+def restoreCustomROI(cropimg, img_background, customROI):
+    ''' Restore the cropped image onto the 1022 x 1344 canvas'''
+
+    # transpose the coordinates as openCV and numpy coordinate systems are tranpose to each other
+    origin_x_customROI = customROI[0]
+    origin_y_customROI = customROI[1]
+    
+    end_x_customROI = customROI[2]
+    end_y_customROI = customROI[3]
+    
+    img_restored = img_background 
+
+    # origin of the ROI in absolute coordinates
+    x0 = origin_x_customROI
+    y0 = origin_y_customROI
+
+    x1 = end_x_customROI
+    y1 = end_y_customROI    
+    img_restored[x0:x1, y0:y1] = cropimg
+    
+    if displayImages:
+        title = 'Restored image'
+        displayImage(img_restored, title)
+    return img_restored
+
 def restoreColorCustomROI(img_color, img_background, customROI):
     """
         Restore the colored crop image with ellipse fit

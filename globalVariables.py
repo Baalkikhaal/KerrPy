@@ -65,5 +65,10 @@ saveRestoredImages = True
 ############################
 #######matplotlib parameters
 ############################
-mpl_stylesheet = 'myMatplotlibStylesheet.mplstyle'
+mpl_stylesheet = r'myMatplotlibStylesheet.mplstyle'
 use_tex = False
+
+############################
+##### image parameters #####
+############################
+image_shape= tuple([1066, 1344])
