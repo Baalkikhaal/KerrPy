@@ -71,7 +71,7 @@ def saveControls(controls, parent_dir_abs):
     # save the controls
     controls_filename = save_controls_file
     controls_filepath = os.path.abspath(os.path.join(fits_root,controls_filename))
-    np.save(controls_filepath, np.array(controls))
+    np.save(controls_filepath, np.array(controls, dtype=object))
     
     #Restore the path
     os.chdir(cur_path)
