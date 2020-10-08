@@ -7,11 +7,13 @@ Created on Sat Sep 12 16:58:34 2020
 import os, os.path
 import numpy as np
 
-from globalVariables import debug, proc_dir, fits_folder, samplename, nImages
+from globalVariables import debug, nImages
+
+from KerrPy.File.loadFilePaths import fits_root
 
 from KerrPy.File.processPulse import processPulse, processPulseWithCustomROI
 
-def saveIteration(iter_index, exp_index, iteration, parent_dir_abs):
+def saveIteration(iter_index, exp_index, iteration):
     """
         Take iter_index, exp_index and iteration array
         as inputs and
@@ -22,12 +24,6 @@ def saveIteration(iter_index, exp_index, iteration, parent_dir_abs):
     cur_path = os.path.abspath(os.curdir)
     
     if debug: print(f"        L2 saveIteration() started at E:{exp_index} I:{iter_index}")
-    
-    proc_dir_abs = os.path.abspath(os.path.join(parent_dir_abs, proc_dir))
-    if not os.path.isdir(proc_dir_abs): os.mkdir(proc_dir_abs)
-    
-    fits_dir_abs = os.path.abspath(os.path.join(proc_dir_abs,fits_folder))
-    fits_root = os.path.abspath(os.path.join(fits_dir_abs,samplename))
     
     #change to Fits root folder (LEVLE 0)
     os.chdir(fits_root)
@@ -53,7 +49,7 @@ def saveIteration(iter_index, exp_index, iteration, parent_dir_abs):
     #Restore the path
     os.chdir(cur_path)
     
-def processIteration(iter_index, exp_index, iter_dir, parent_dir_abs):
+def processIteration(iter_index, exp_index, iter_dir):
     """
         LEVEL 2
         0. Enter the iteration directory
@@ -87,18 +83,18 @@ def processIteration(iter_index, exp_index, iter_dir, parent_dir_abs):
     for i in np.arange(n_pulse):
         pulse_index = i
         img_file = images[i]
-        pulse = processPulse(pulse_index, iter_index, exp_index, img_file, parent_dir_abs)
+        pulse = processPulse(pulse_index, iter_index, exp_index, img_file)
         iteration.append(pulse)
 
     #save the iteration to file    
-    saveIteration(iter_index, exp_index, iteration, parent_dir_abs)
+    saveIteration(iter_index, exp_index, iteration)
         
     #Restore the path
     os.chdir(cur_path)
 
     return iteration
 
-def processIterationWithCustomROI(list_counters, iter_index, exp_index, iter_dir, parent_dir_abs):
+def processIterationWithCustomROI(list_counters, iter_index, exp_index, iter_dir):
     """
         LEVEL 2
         0. Enter the iteration directory
@@ -137,12 +133,8 @@ def processIterationWithCustomROI(list_counters, iter_index, exp_index, iter_dir
         
         img_file = images[i]
         
-        list_counters = processPulseWithCustomROI(list_counters, pulse_index, iter_index, exp_index, img_file, parent_dir_abs)
+        list_counters = processPulseWithCustomROI(list_counters, pulse_index, iter_index, exp_index, img_file)
         
-        # iteration.append(pulse)
-
-    #save the iteration to file    
-    # saveIteration(iter_index, exp_index, iteration, parent_dir_abs)
         
     #Restore the path
     os.chdir(cur_path)

@@ -10,8 +10,10 @@ import numpy as np
 
 from hashlib import sha1
 
-from globalVariables import debug, proc_dir, figs_folder, samplename
+from globalVariables import debug
 from globalVariables import saveFigures
+
+from KerrPy.File.loadFilePaths import figs_root
 
 from KerrPy.Fits.loadFits import loadFits
 
@@ -36,7 +38,7 @@ def extractSubspace(list_exp_indices, space ):
 
 
     
-def saveFigsSpace( avg_space, prefix, list_figs_files, list_figs, parent_dir_abs):
+def saveFigsSpace( avg_space, prefix, list_figs_files, list_figs):
     """
         0. Save list of figs
         1. Save the iteration parameters as csv file.
@@ -47,15 +49,6 @@ def saveFigsSpace( avg_space, prefix, list_figs_files, list_figs, parent_dir_abs
     
     if debug: print("L0 saveFigsSpace() started")
 
-    proc_dir_abs = os.path.abspath(os.path.join(parent_dir_abs, proc_dir))
-    if not os.path.isdir(proc_dir_abs): os.mkdir(proc_dir_abs)
-    
-    figs_dir_abs = os.path.abspath(os.path.join(proc_dir_abs, figs_folder))
-    if not os.path.isdir(figs_dir_abs): os.mkdir(figs_dir_abs)
-
-    figs_root = os.path.abspath(os.path.join(figs_dir_abs,samplename))
-    if not os.path.isdir(figs_root): os.mkdir(figs_root)
-    
     #change to images root folder (LEVEL 0)
     os.chdir(figs_root)
 
@@ -105,7 +98,7 @@ def saveFigsSpace( avg_space, prefix, list_figs_files, list_figs, parent_dir_abs
     os.chdir(cur_path)
 
 
-def saveFigsExperiment(exp_index, avg_iteration, list_figs_files, list_figs, parent_dir_abs):
+def saveFigsExperiment(exp_index, avg_iteration, list_figs_files, list_figs):
     """
         0. Save list of figs
         1. Save the iteration parameters as csv file.
@@ -116,15 +109,6 @@ def saveFigsExperiment(exp_index, avg_iteration, list_figs_files, list_figs, par
     
     if debug: print(f"    L1 saveFigsExperiment() started at E:{exp_index}")
 
-    proc_dir_abs = os.path.abspath(os.path.join(parent_dir_abs, proc_dir))
-    if not os.path.isdir(proc_dir_abs): os.mkdir(proc_dir_abs)
-    
-    figs_dir_abs = os.path.abspath(os.path.join(proc_dir_abs, figs_folder))
-    if not os.path.isdir(figs_dir_abs): os.mkdir(figs_dir_abs)
-
-    figs_root = os.path.abspath(os.path.join(figs_dir_abs,samplename))
-    if not os.path.isdir(figs_root): os.mkdir(figs_root)
-    
     #change to images root folder (LEVEL 0)
     os.chdir(figs_root)
 
@@ -161,7 +145,7 @@ def saveFigsExperiment(exp_index, avg_iteration, list_figs_files, list_figs, par
     os.chdir(cur_path)
 
 
-def saveFigsIteration( iter_index, exp_index, iteration, list_figs_files, list_figs, parent_dir_abs):
+def saveFigsIteration( iter_index, exp_index, iteration, list_figs_files, list_figs):
     """
         0. Save list of figs
         1. Save the iteration parameters as csv file.
@@ -172,15 +156,6 @@ def saveFigsIteration( iter_index, exp_index, iteration, list_figs_files, list_f
     
     if debug: print(f"        L2 saveFigList() started at E:{exp_index} I:{iter_index}")
 
-    proc_dir_abs = os.path.abspath(os.path.join(parent_dir_abs, proc_dir))
-    if not os.path.isdir(proc_dir_abs): os.mkdir(proc_dir_abs)
-    
-    figs_dir_abs = os.path.abspath(os.path.join(proc_dir_abs, figs_folder))
-    if not os.path.isdir(figs_dir_abs): os.mkdir(figs_dir_abs)
-
-    figs_root = os.path.abspath(os.path.join(figs_dir_abs,samplename))
-    if not os.path.isdir(figs_root): os.mkdir(figs_root)
-    
     #change to images root folder (LEVEL 0)
     os.chdir(figs_root)
 
@@ -224,7 +199,7 @@ def saveFigsIteration( iter_index, exp_index, iteration, list_figs_files, list_f
     os.chdir(cur_path)
     
 
-def drawIterationFigures(space, controls, parent_dir_abs):
+def drawIterationFigures(space, controls):
     """
         0. Iterate over all the iterations of all experiments
         
@@ -254,13 +229,13 @@ def drawIterationFigures(space, controls, parent_dir_abs):
             
             # save the list of figures and iteration parameters
             
-            saveFigsIteration(iter_index, exp_index, iteration, list_figs_files, list_figs, parent_dir_abs)
+            saveFigsIteration(iter_index, exp_index, iteration, list_figs_files, list_figs)
             
             
         
 
         
-def drawExperimentFigures(space, controls, parent_dir_abs):
+def drawExperimentFigures(space, controls):
     """
         Plot the average values for the parameters
         over the iterations
@@ -293,11 +268,11 @@ def drawExperimentFigures(space, controls, parent_dir_abs):
         
         # save the list of figures and iteration parameters
             
-        saveFigsExperiment(exp_index, avg_iteration, list_figs_files, list_figs, parent_dir_abs)
+        saveFigsExperiment(exp_index, avg_iteration, list_figs_files, list_figs)
         
     
 
-def drawSpaceFigures(space, controls, parent_dir_abs):
+def drawSpaceFigures(space, controls):
     """
         Plot 2D surface plots for each parameter over the entire
         space
@@ -337,10 +312,10 @@ def drawSpaceFigures(space, controls, parent_dir_abs):
 
     # save the list of figures and experiment parameters
         
-    saveFigsSpace( avg_space, prefix, list_figs_files, list_figs, parent_dir_abs)
+    saveFigsSpace( avg_space, prefix, list_figs_files, list_figs)
 
 
-def processFigures(parent_dir_abs, **kwargs):
+def processFigures(**kwargs):
     """
         Plot the figures and save the figures
     """
@@ -352,9 +327,9 @@ def processFigures(parent_dir_abs, **kwargs):
     
     # plot the figures
     if saveFigures:
-        drawIterationFigures(filtered_space, controls, parent_dir_abs)
-        drawExperimentFigures(filtered_space, controls, parent_dir_abs)
-        drawSpaceFigures(filtered_space, controls, parent_dir_abs)
+        drawIterationFigures(filtered_space, controls)
+        drawExperimentFigures(filtered_space, controls)
+        drawSpaceFigures(filtered_space, controls)
         
     return controls, filtered_space
     

@@ -13,15 +13,14 @@ import cv2
 
 from globalVariables import debug, deep_debug
 
-from globalVariables import proc_dir, temp_dir, imgs_folder, restored_folder, samplename
-
 from globalVariables import displayImages, saveImages, saveRestoredImages
 from globalVariables import nucleation_down
-from globalVariables import center_ROI, adaptive_ROI, aspr_ROI, adaptive_ROI_seq, custom_ROI
+from globalVariables import center_ROI, adaptive_ROI, aspr_ROI, adaptive_ROI_seq
 from globalVariables import max_norm_err_sq
 
+from KerrPy.File.loadFilePaths import img_root, restored_root
 
-from KerrPy.Image.processROI import processROI, restoreColorROI, restoreColorCustomROI
+from KerrPy.Image.processROI import processROI, restoreColorROI
 
 from KerrPy.Image.routinesOpenCV import processImage, removeSpeckles, cannyEdgesAndContoursOpenCV
 
@@ -172,7 +171,7 @@ def fitEllipseCustomROI(img_edges,  customROI):
     return array_pulse, img_color
 
 
-def findEdge(pulse_index, iter_index, exp_index, img, parent_dir_abs):
+def findEdge(pulse_index, iter_index, exp_index, img):
     """
     Take as input image array and return the params of
     ellipse fit and the image with fit ellipse overlayed onto
@@ -185,7 +184,7 @@ def findEdge(pulse_index, iter_index, exp_index, img, parent_dir_abs):
     
     if adaptive_ROI:
         #find optimum ROI
-        ROI = processROI(pulse_index, iter_index, exp_index, img, parent_dir_abs) 
+        ROI = processROI(pulse_index, iter_index, exp_index, img) 
     
 
     # process the image
@@ -203,14 +202,14 @@ def findEdge(pulse_index, iter_index, exp_index, img, parent_dir_abs):
         
     return pulse, img_color
 
-def findEdgeCustomROI(coords, pulse_index, iter_index, exp_index, img, parent_dir_abs):
+def findEdgeCustomROI(coords, pulse_index, iter_index, exp_index, img):
 
     # interchange rows and columns to reflect coordinate transpose of openCV and numpy
     customROI= np.array([coords[1][0], coords[0][0], coords[1][2], coords[0][2]])
 
     customROI = customROI.astype(int)
     
-    print(f"customROI: {customROI}")
+    if deep_debug: print(f"customROI: {customROI}")
 
     # process the image with custom ROI
     img_med = processImageCustomROI(img, customROI)
@@ -228,7 +227,7 @@ def findEdgeCustomROI(coords, pulse_index, iter_index, exp_index, img, parent_di
     return pulse, img_color, customROI
 
 
-def saveImage(pulse_index, iter_index, exp_index, img_color, parent_dir_abs):
+def saveImage(pulse_index, iter_index, exp_index, img_color):
     """
         If global flag saveImages is True, then save the img_color
         at corresponding heirarchial location in Images roots directory
@@ -251,19 +250,6 @@ def saveImage(pulse_index, iter_index, exp_index, img_color, parent_dir_abs):
 
     
     if debug: print("            L3 saveImage() saving image")
-
-    proc_dir_abs = os.path.abspath(os.path.join(parent_dir_abs, proc_dir))
-    if not os.path.isdir(proc_dir_abs): os.mkdir(proc_dir_abs)
-
-
-    # image fits folder root
-    img_dir_abs = os.path.abspath(os.path.join(proc_dir_abs, imgs_folder))
-    if not os.path.isdir(img_dir_abs): os.mkdir(img_dir_abs)
-
- 
-
-    img_root = os.path.abspath(os.path.join(img_dir_abs,samplename))
-    if not os.path.isdir(img_root): os.mkdir(img_root)
 
     # change to Images Fits root folder (LEVEL 0)
     os.chdir(img_root)
@@ -297,7 +283,7 @@ def saveImage(pulse_index, iter_index, exp_index, img_color, parent_dir_abs):
     #Restore the path to the image path
     os.chdir(cur_path)
  
-def saveRestoredImage(pulse_index, iter_index, exp_index, img_restored, parent_dir_abs):
+def saveRestoredImage(pulse_index, iter_index, exp_index, img_restored):
     """
         If global flag restoreImages is True, then save the img_color
         at corresponding heirarchial location in Restored roots directory
@@ -321,16 +307,6 @@ def saveRestoredImage(pulse_index, iter_index, exp_index, img_restored, parent_d
     
     if debug: print("            L3 saveRestoredImage() saving image")
     
-    proc_dir_abs = os.path.abspath(os.path.join(parent_dir_abs, proc_dir))
-    if not os.path.isdir(proc_dir_abs): os.mkdir(proc_dir_abs)
-    
-    # image fits folder root
-    restored_dir_abs = os.path.abspath(os.path.join(proc_dir_abs, restored_folder))
-    if not os.path.isdir(restored_dir_abs): os.mkdir(restored_dir_abs)
-
-    restored_root = os.path.abspath(os.path.join(restored_dir_abs,samplename))
-    if not os.path.isdir(restored_root): os.mkdir(restored_root)
-
     # change to Images Fits root folder (LEVEL 0)
     os.chdir(restored_root)
     
@@ -365,7 +341,7 @@ def saveRestoredImage(pulse_index, iter_index, exp_index, img_restored, parent_d
 
 
         
-def processOpenCV(pulse_index, iter_index, exp_index, img_file, parent_dir_abs):
+def processOpenCV(pulse_index, iter_index, exp_index, img_file):
     """
         0. Read the image
         1. Fit the Ellipse
@@ -377,36 +353,21 @@ def processOpenCV(pulse_index, iter_index, exp_index, img_file, parent_dir_abs):
     
     if adaptive_ROI:    
         # Fit the ellise
-        pulse, img_color = findEdge(pulse_index, iter_index, exp_index, img, parent_dir_abs)
+        pulse, img_color = findEdge(pulse_index, iter_index, exp_index, img)
 
-    elif custom_ROI:
-        # read the coordinates of CustomROI from "coordinates.npy" at parent dir
-        
-        coords_file = os.path.abspath(os.path.join(parent_dir_abs, temp_dir, 'coordinates.npy'))
+        # initialize restored image
+        img_restored = np.zeros(img.shape)
     
-        coords  = np.load(coords_file)
-        # Fit the ellise with rectROI
-        pulse, img_color, customROI = findEdgeCustomROI(coords, pulse_index, iter_index, exp_index, img, parent_dir_abs)
-        
-    # initialize restored image
-    img_restored = np.zeros(img.shape)
-    
-    if adaptive_ROI:
         # restored the colored fit onto the original image
         img_restored = restoreColorROI(img_color, img)
     
-    elif custom_ROI:
-        # restored the colored fit onto the original image with rectangle ROI
-        img_restored = restoreColorCustomROI(img_color, img, customROI)        
-    
     if saveImages:
         #save the image to file    
-        saveImage(pulse_index, iter_index, exp_index, img_color, parent_dir_abs)
+        saveImage(pulse_index, iter_index, exp_index, img_color)
 
-    # save the restored image to file
-    
+
     if saveRestoredImages:
-        
-        saveRestoredImage(pulse_index, iter_index, exp_index, img_restored, parent_dir_abs)
+        # save the restored image to file
+        saveRestoredImage(pulse_index, iter_index, exp_index, img_restored)
     
     return pulse

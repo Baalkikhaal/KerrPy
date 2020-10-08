@@ -7,7 +7,6 @@ Created on Sat Sep 12 17:19:27 2020
 
 import os, os.path
 
-from KerrPy.File.preConditioning import preConditioning
 from KerrPy.File.processControls import processControls
 from KerrPy.File.processSpace import processSpace, processSpaceWithCustomROI
 
@@ -20,11 +19,9 @@ def processData():
     #Store the current location before relocating
     cur_path = os.path.abspath(os.curdir)
     
-    parent_dir_abs = preConditioning()
-    
-    controls = processControls(parent_dir_abs)
+    controls = processControls()
 
-    space = processSpace(controls, parent_dir_abs)
+    space = processSpace(controls)
     
     #Restore the path to the image path
     os.chdir(cur_path)
@@ -39,11 +36,9 @@ def processDataWithCustomROI(list_counters):
     #Store the current location before relocating
     cur_path = os.path.abspath(os.curdir)
     
-    parent_dir_abs = preConditioning()
-    
-    controls = processControls(parent_dir_abs)
+    controls = processControls()
 
-    list_counters = processSpaceWithCustomROI(list_counters, controls, parent_dir_abs)
+    list_counters = processSpaceWithCustomROI(list_counters, controls)
     
     #Restore the path to the image path
     os.chdir(cur_path)

@@ -7,22 +7,27 @@ Created on Sat Sep 12 17:19:27 2020
 
 import os, os.path
 import numpy as np
+import cv2
 
+######## special configuration of matplotlib ######
 import matplotlib as mpl
-#use interactive backend Qt5Agg
+#reload interactive backend Qt5Agg
 mpl.use('Qt5Agg')
-from globalVariables import mpl_stylesheet, use_tex
 
-mpl.style.use(mpl_stylesheet)
+#read the absolute filepath to stylesheet
+from KerrPy.File.loadFilePaths import mpl_stylesheet_file
+from globalVariables import use_tex
+
+mpl.style.use(mpl_stylesheet_file)
 mpl.rcParams['text.usetex'] =  use_tex
 
 import matplotlib.pyplot as plt
-
 from matplotlib.widgets import RectangleSelector
-
-import cv2
+########  ends here ###############################
 
 from globalVariables import deep_debug, image_shape
+
+from KerrPy.File.loadFilePaths import space_filepath
 
 from KerrPy.Image.processOpenCV import findEdgeCustomROI, saveImage, saveRestoredImage
 
@@ -56,9 +61,7 @@ list_img_file = list_counters[4]
 
 # set the shape of space array
 space = np.zeros((list_space_shape[0], list_space_shape[1], list_space_shape[2], list_space_shape[3]), dtype=np.float)
-
-# save the space
-parent_dir_abs = os.path.abspath(os.curdir)
+np.save(space_filepath, np.array(space))
 
 # number of images
 n_images = len(list_img_file)
@@ -124,7 +127,7 @@ def iterateImages():
         ###### IMPORTANT save the space in the end ######################
         space = iterateImages.space
         
-        saveSpace(space, parent_dir_abs)
+        saveSpace(space)
         
     
 # event handling functions
@@ -174,7 +177,7 @@ def onselect(eclick, erelease):
     iter_index = list_iter_index[i]
     exp_index = list_exp_index[i]
     
-    pulse, img_color, customROI = findEdgeCustomROI(coordinates, pulse_index, iter_index, exp_index, img, parent_dir_abs)
+    pulse, img_color, customROI = findEdgeCustomROI(coordinates, pulse_index, iter_index, exp_index, img)
 
 
     ############## now restore the crop ####################
@@ -244,12 +247,6 @@ def saveIteration():
     
     we "set" the `counter` attribute by incremented to point to the next image. 
     """
-    global list_pulse_index
-    global list_iter_index
-    global list_exp_index
-    global parent_dir_abs
-    global space_file
-    
     
     # get the counter
     i = iterateImages.counter
@@ -276,13 +273,16 @@ def saveIteration():
     
     
     #save the image to file    
-    saveImage(pulse_index, iter_index, exp_index, img_color, parent_dir_abs)
+    saveImage(pulse_index, iter_index, exp_index, img_color)
     
     # save the restored image to file
-    saveRestoredImage(pulse_index, iter_index, exp_index, img_restored, parent_dir_abs) 
+    saveRestoredImage(pulse_index, iter_index, exp_index, img_restored) 
     
     # save the params
-    savePulse(pulse_index, iter_index, exp_index, pulse, parent_dir_abs)
+    savePulse(pulse_index, iter_index, exp_index, pulse)
+    
+    #save the space to file to allow restart options
+    np.save(space_filepath, space)
     
     # iterate the counter after the save
     iterateImages.counter += 1
@@ -298,11 +298,6 @@ def discardIteration():
         img_fit to img, img_color to img
     2. Increment the counter attribute of iterateImages().
     """
-    global list_pulse_index
-    global list_iter_index
-    global list_exp_index
-    global parent_dir_abs
-    global space_file
     
     # get the counter
     i = iterateImages.counter
@@ -327,13 +322,16 @@ def discardIteration():
     iterateImages.space = space
     
     #save the image to file    
-    saveImage(pulse_index, iter_index, exp_index, img, parent_dir_abs)
+    saveImage(pulse_index, iter_index, exp_index, img)
     
     # save the restored image to file
-    saveRestoredImage(pulse_index, iter_index, exp_index, img, parent_dir_abs)
+    saveRestoredImage(pulse_index, iter_index, exp_index, img)
     
     # save the params
-    savePulse(pulse_index, iter_index, exp_index, pulse, parent_dir_abs)
+    savePulse(pulse_index, iter_index, exp_index, pulse)
+    
+    #save the space to file to allow restart options
+    np.save(space_filepath, space)
     
     # iterate the counter after the save
     iterateImages.counter += 1

@@ -8,18 +8,13 @@ Created on Mon Sep 14 18:07:55 2020
 
 import matplotlib as mpl
 
-from globalVariables import mpl_stylesheet, use_tex
+from globalVariables import use_tex
 
-mpl.style.use(mpl_stylesheet)
+from KerrPy.File.loadFilePaths import mpl_stylesheet_file
+
+mpl.style.use(mpl_stylesheet_file)
 mpl.rcParams['text.usetex'] =  use_tex
 
-# mpl.use('pdf', force=True)  # set noninteractive backend 'pdf'
-# to check the available non gui backends
-#   non_gui_backends = mpl.rcsetup.non_interactive_bk
-#   print(non_gui_backends)
-#   to check gui backends
-#   gui_backends = mpl.rcsetup.interactive_bk
-#   Reference : https://stackoverflow.com/questions/3285193/how-to-change-backends-in-matplotlib-python
 import matplotlib.pyplot as plt
 
 import numpy as np

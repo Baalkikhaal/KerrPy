@@ -7,12 +7,14 @@ Created on Sat Sep 12 17:00:18 2020
 import os, os.path
 import numpy as np
 
-from globalVariables import debug, proc_dir, fits_folder, samplename
+from globalVariables import debug
+
+from KerrPy.File.loadFilePaths import fits_root
 
 from KerrPy.File.processIteration import processIteration, processIterationWithCustomROI
 
 
-def saveExperiment(exp_index, experiment, parent_dir_abs):
+def saveExperiment(exp_index, experiment):
     """
         Take exp_index and experiment list as input and save
         as numpy array file at level 1 of fits    
@@ -22,12 +24,6 @@ def saveExperiment(exp_index, experiment, parent_dir_abs):
     cur_path = os.path.abspath(os.curdir)
     
     if debug: print(f"    L1 saveExperiment() started at E: {exp_index}")
-    
-    proc_dir_abs = os.path.abspath(os.path.join(parent_dir_abs, proc_dir))
-    if not os.path.isdir(proc_dir_abs): os.mkdir(proc_dir_abs)
-    
-    fits_dir_abs = os.path.abspath(os.path.join(proc_dir_abs,fits_folder))
-    fits_root = os.path.abspath(os.path.join(fits_dir_abs,samplename))
     
     #change to Fits root folder (LEVLEL 0)
     os.chdir(fits_root)
@@ -47,7 +43,7 @@ def saveExperiment(exp_index, experiment, parent_dir_abs):
     os.chdir(cur_path)
 
 
-def processExperiment(exp_index, exp_dir, parent_dir_abs):
+def processExperiment(exp_index, exp_dir):
     """
         LEVEL 1
         0. Enter the experiment directory
@@ -80,11 +76,11 @@ def processExperiment(exp_index, exp_dir, parent_dir_abs):
     for i in np.arange(n_iter):
         iter_index = i
         iter_dir = iter_dirs[i]
-        iteration = processIteration(iter_index, exp_index, iter_dir, parent_dir_abs)
+        iteration = processIteration(iter_index, exp_index, iter_dir)
         experiment.append(iteration)
         
     #save the iterations to file    
-    saveExperiment(exp_index, experiment, parent_dir_abs)
+    saveExperiment(exp_index, experiment)
         
     #Restore the path
     os.chdir(cur_path)
@@ -92,7 +88,7 @@ def processExperiment(exp_index, exp_dir, parent_dir_abs):
     return experiment
     
 
-def processExperimentWithCustomROI(list_counters, exp_index, exp_dir, parent_dir_abs):
+def processExperimentWithCustomROI(list_counters, exp_index, exp_dir):
     """
         LEVEL 1
         0. Enter the experiment directory
@@ -130,12 +126,9 @@ def processExperimentWithCustomROI(list_counters, exp_index, exp_dir, parent_dir
         
         iter_dir = iter_dirs[i]
         
-        list_counters = processIterationWithCustomROI(list_counters, iter_index, exp_index, iter_dir, parent_dir_abs)
+        list_counters = processIterationWithCustomROI(list_counters, iter_index, exp_index, iter_dir)
         
         # experiment.append(iteration)
-        
-    #save the iterations to file    
-    # saveExperiment(exp_index, experiment, parent_dir_abs)
         
     #Restore the path
     os.chdir(cur_path)

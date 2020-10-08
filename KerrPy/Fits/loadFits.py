@@ -5,10 +5,11 @@ Created on Sun Sep 13 17:48:40 2020
 @author: fubar
 """
 
-import os, os.path
 import numpy as np
 
-from globalVariables import debug, proc_dir, fits_folder, samplename, save_exps_file, save_controls_file
+from globalVariables import debug
+
+from KerrPy.File.loadFilePaths import controls_filepath, space_filepath
 
 def loadFits(**kwargs):
     """
@@ -21,19 +22,9 @@ def loadFits(**kwargs):
     
     if debug: print(f"subspace_exps: {subspace_exps}")
     
-    #Store the current location before relocating
-    cur_path = os.path.abspath(os.curdir)
+    space = np.load(space_filepath)
     
-    controls_file = os.path.abspath(os.path.join(cur_path, proc_dir, fits_folder, samplename, save_controls_file))
-    
-    space_file = os.path.abspath(os.path.join(cur_path, proc_dir, fits_folder, samplename, save_exps_file))
-    
-    space = np.load(space_file)
-    
-    controls = np.load(controls_file, allow_pickle=True)
-    
-    #Restore the path to the image path
-    os.chdir(cur_path)
+    controls = np.load(controls_filepath, allow_pickle=True)
     
     if subspace_exps == []:
         

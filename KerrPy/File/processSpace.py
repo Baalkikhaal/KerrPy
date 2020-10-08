@@ -8,9 +8,9 @@ Created on Sat Sep 12 17:02:16 2020
 import os, os.path
 import numpy as np
 
-from globalVariables import debug, deep_debug, proc_dir, fits_folder, samplename
-from globalVariables import save_exps_file
-from globalVariables import raw_dir
+from globalVariables import debug, deep_debug
+
+from KerrPy.File.loadFilePaths import raw_dir_abs, space_filepath
 
 from KerrPy.File.processExperiment import processExperiment, processExperimentWithCustomROI
 
@@ -32,7 +32,6 @@ def extractControlsFromFolderName(foldername):
     Hop     =   '{:.1f}'.format(np.float(splits[2][2:]))
     tp      =   '{:.1f}'.format(np.float(splits[3][2:]))    
     
-#    controls = np.array([Hip,Hop,tp],dtype=np.int32)
     controls = [Hip,Hop,tp]
 
 
@@ -40,7 +39,7 @@ def extractControlsFromFolderName(foldername):
     
     return controls
 
-def findExperiment(exp_controls, parent_dir_abs):
+def findExperiment(exp_controls):
     """
     Take the controls of experiment as input,
     Enter the raw directory and
@@ -51,9 +50,6 @@ def findExperiment(exp_controls, parent_dir_abs):
     
     #Store the current location before relocating
     cur_path = os.path.abspath(os.curdir)
-    
-    raw_dir_abs = os.path.abspath(os.path.join(parent_dir_abs, raw_dir))
-    if not os.path.isdir(raw_dir_abs): os.mkdir(raw_dir_abs)
     
     #change to raw_dir
     os.chdir(raw_dir_abs)#level 1
@@ -77,7 +73,7 @@ def findExperiment(exp_controls, parent_dir_abs):
     
     return exp_dir
 
-def saveSpace(space, parent_dir_abs):
+def saveSpace(space):
     """
         Created on Sat Sep 12 17:02:16 2020
         
@@ -87,30 +83,13 @@ def saveSpace(space, parent_dir_abs):
         as numpy array file at level 0 of fits
     """
     
-    #Store the current location before relocating
-    cur_path = os.path.abspath(os.curdir)
-    
     if debug: print("L0 saveSpace() started")
     
-    proc_dir_abs = os.path.abspath(os.path.join(parent_dir_abs, proc_dir))
-    if not os.path.isdir(proc_dir_abs): os.mkdir(proc_dir_abs)
-    
-    fits_dir_abs = os.path.abspath(os.path.join(proc_dir_abs,fits_folder))
-    fits_root = os.path.abspath(os.path.join(fits_dir_abs,samplename))
-    
-    #change to Fits root folder (LEVLEL 0)
-    os.chdir(fits_root)
-    
     # save the space
-    space_filename = save_exps_file
-    space_filepath = os.path.abspath(os.path.join(fits_root,space_filename))
     np.save(space_filepath, np.array(space))
     
-    #Restore the path
-    os.chdir(cur_path)
-    
 
-def processSpace(controls, parent_dir_abs):
+def processSpace(controls):
     """
         Created on Sat Sep 12 17:02:16 2020
 
@@ -132,7 +111,7 @@ def processSpace(controls, parent_dir_abs):
     cur_path = os.path.abspath(os.curdir)
     
     # enter the experiment directory Level 1
-    os.chdir(raw_dir)
+    os.chdir(raw_dir_abs)
 
     
     # initialize a list for saving space
@@ -150,20 +129,20 @@ def processSpace(controls, parent_dir_abs):
         
         # find the experiment directory corresponding to experiment index
 
-        exp_dir = findExperiment(exp_controls, parent_dir_abs)
+        exp_dir = findExperiment(exp_controls)
         
-        experiment = processExperiment(exp_index, exp_dir, parent_dir_abs)
+        experiment = processExperiment(exp_index, exp_dir)
         
         space.append(experiment)
         
-    saveSpace(space, parent_dir_abs)
+    saveSpace(space)
     
     #Restore the path
     os.chdir(cur_path)
     
     return space
 
-def processSpaceWithCustomROI(list_counters, controls, parent_dir_abs):
+def processSpaceWithCustomROI(list_counters, controls):
     """
         Created on Sat Sep 12 17:02:16 2020
 
@@ -185,7 +164,7 @@ def processSpaceWithCustomROI(list_counters, controls, parent_dir_abs):
     cur_path = os.path.abspath(os.curdir)
     
     # enter the experiment directory Level 1
-    os.chdir(raw_dir)
+    os.chdir(raw_dir_abs)
 
     
     # initialize a list for saving space
@@ -206,13 +185,10 @@ def processSpaceWithCustomROI(list_counters, controls, parent_dir_abs):
         
         # find the experiment directory corresponding to experiment index
 
-        exp_dir = findExperiment(exp_controls, parent_dir_abs)
+        exp_dir = findExperiment(exp_controls)
         
-        list_counters = processExperimentWithCustomROI(list_counters, exp_index, exp_dir, parent_dir_abs)
+        list_counters = processExperimentWithCustomROI(list_counters, exp_index, exp_dir)
         
-        # space.append(experiment)
-        
-    # saveSpace(space, parent_dir_abs)
     
     #Restore the path
     os.chdir(cur_path)

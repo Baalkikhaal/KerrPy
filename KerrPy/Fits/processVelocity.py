@@ -10,14 +10,15 @@ import numpy as np
 
 from hashlib import sha1
 
-from globalVariables import debug, proc_dir, vel_folder, samplename
+from globalVariables import debug
 
+from KerrPy.File.loadFilePaths import vel_root
 from KerrPy.Fits.loadFits import loadFits
 from KerrPy.Fits.filterSpace import filterSpace
 
 
 
-def saveVelocity( velocity, prefix, parent_dir_abs):
+def saveVelocity( velocity, prefix):
     """
         0. Save velocity array
         1. Hash the prefix so that long prefixes canbe avoided
@@ -30,15 +31,6 @@ def saveVelocity( velocity, prefix, parent_dir_abs):
     
     if debug: print("L0 saveVelocity() started")
 
-    proc_dir_abs = os.path.abspath(os.path.join(parent_dir_abs, proc_dir))
-    if not os.path.isdir(proc_dir_abs): os.mkdir(proc_dir_abs)
-    
-    vel_dir_abs = os.path.abspath(os.path.join(proc_dir_abs, vel_folder))
-    if not os.path.isdir(vel_dir_abs): os.mkdir(vel_dir_abs)
-
-    vel_root = os.path.abspath(os.path.join(vel_dir_abs,samplename))
-    if not os.path.isdir(vel_root): os.mkdir(vel_root)
-    
     #change to images root folder (LEVEL 0)
     os.chdir(vel_root)
 
@@ -247,7 +239,7 @@ def scaleVelocity(velocity_space, controls):
     return velocity_um_per_sec, prefix
            
 
-def processVelocity(parent_dir_abs, **kwargs):
+def processVelocity(**kwargs):
     """
         find the velocity of the ellipse
         
@@ -266,7 +258,7 @@ def processVelocity(parent_dir_abs, **kwargs):
     
     velocity_um_per_sec, vel_file_prefix = scaleVelocity(velocity_pixel_per_pulse, controls)
     
-    saveVelocity(velocity_um_per_sec, vel_file_prefix, parent_dir_abs)
+    saveVelocity(velocity_um_per_sec, vel_file_prefix)
     
     return velocity_um_per_sec
     

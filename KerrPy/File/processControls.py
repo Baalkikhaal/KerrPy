@@ -8,10 +8,9 @@ Created on Sat Sep 12 17:03:48 2020
 import os, os.path
 import numpy as np
 
-from globalVariables import seq_file
-from globalVariables import debug, proc_dir, fits_folder, samplename
-from globalVariables import save_controls_file
+from globalVariables import debug, seq_file
 
+from KerrPy.File.loadFilePaths import controls_filepath
 
 def getControls():
     """
@@ -48,35 +47,19 @@ def getControls():
     
     return controls
 
-def saveControls(controls, parent_dir_abs):
+def saveControls(controls):
     """
         Take controls array as input and save
         as numpy array file at level 0 of fits
     """
     
-    #Store the current location before relocating
-    cur_path = os.path.abspath(os.curdir)
-    
     if debug: print("L0 saveControls() started")
     
-    proc_dir_abs = os.path.abspath(os.path.join(parent_dir_abs, proc_dir))
-    if not os.path.isdir(proc_dir_abs): os.mkdir(proc_dir_abs)
-    
-    fits_dir_abs = os.path.abspath(os.path.join(proc_dir_abs,fits_folder))
-    fits_root = os.path.abspath(os.path.join(fits_dir_abs,samplename))
-    
-    #change to Fits root folder (LEVLEL 0)
-    os.chdir(fits_root)
-    
     # save the controls
-    controls_filename = save_controls_file
-    controls_filepath = os.path.abspath(os.path.join(fits_root,controls_filename))
     np.save(controls_filepath, np.array(controls, dtype=object))
     
-    #Restore the path
-    os.chdir(cur_path)
 
-def processControls(parent_dir_abs):
+def processControls():
     """
         0. Scan through the sequence file and get the controls
         1. Save the controls to global {save_controls_file} file
@@ -91,7 +74,7 @@ def processControls(parent_dir_abs):
     controls = getControls()
     
     # save the controls
-    saveControls(controls, parent_dir_abs)
+    saveControls(controls)
     
     #Restore the path
     os.chdir(cur_path)

@@ -8,9 +8,11 @@ Created on Mon Sep 14 17:02:03 2020
 import os, os.path
 import numpy as np
 
-from globalVariables import debug, proc_dir, imgs_folder, samplename
+from globalVariables import debug
 from globalVariables import center_ROI, aspr_ROI, adaptive_ROI_seq
 from globalVariables import displayImages, saveImages
+
+from KerrPy.File.loadFilePaths import img_root
 
 from KerrPy.Image.routinesOpenCV import processImage
 
@@ -19,7 +21,7 @@ from KerrPy.Statistics.routinesSciPy import modalAnalysis
 from KerrPy.Figure.routinesMatplotLib import displayImage, plotROIanalysis
 
 
-def saveROIAnalysis(pulse_index, iter_index, exp_index, plot_ROI_analysis_file, fig_ROI_analysis, parent_dir_abs):
+def saveROIAnalysis(pulse_index, iter_index, exp_index, plot_ROI_analysis_file, fig_ROI_analysis):
     """
         Take pulse_index, iter_index, exp_index, fig_mod_analysis as inputs
         and save as plots of ROI analysis in ROI_analysis folder
@@ -30,13 +32,6 @@ def saveROIAnalysis(pulse_index, iter_index, exp_index, plot_ROI_analysis_file, 
     
     if debug: print(f"                L4 saveROIAnalysis() started at E:{exp_index} I:{iter_index} P:{pulse_index}")
 
-    proc_dir_abs = os.path.abspath(os.path.join(parent_dir_abs, proc_dir))
-    if not os.path.isdir(proc_dir_abs): os.mkdir(proc_dir_abs)
-    
-    img_dir_abs = os.path.abspath(os.path.join(proc_dir_abs,imgs_folder))
-    img_root = os.path.abspath(os.path.join(img_dir_abs,samplename))
-    if not os.path.isdir(img_root): os.mkdir(img_root)
-    
     #change to images root folder (LEVEL 0)
     os.chdir(img_root)
 
@@ -82,7 +77,7 @@ def saveROIAnalysis(pulse_index, iter_index, exp_index, plot_ROI_analysis_file, 
     
        
 
-def saveModalAnalysis(pulse_index, iter_index, exp_index, plot_modal_analysis_file, fig_mod_analysis, parent_dir_abs):
+def saveModalAnalysis(pulse_index, iter_index, exp_index, plot_modal_analysis_file, fig_mod_analysis):
     """
         Take pulse_index, iter_index, exp_index, fig_mod_analysis as inputs
         and save as numpy array file at level 3 of fits in modal analysis folder
@@ -93,15 +88,6 @@ def saveModalAnalysis(pulse_index, iter_index, exp_index, plot_modal_analysis_fi
     
     if debug: print(f"                L4 saveModalAnalysis() started at E:{exp_index} I:{iter_index} P:{pulse_index}")
 
-    proc_dir_abs = os.path.abspath(os.path.join(parent_dir_abs, proc_dir))
-    if not os.path.isdir(proc_dir_abs): os.mkdir(proc_dir_abs)
-    
-    img_dir_abs = os.path.abspath(os.path.join(proc_dir_abs,imgs_folder))
-    if not os.path.isdir(img_dir_abs): os.mkdir(img_dir_abs)
-
-    img_root = os.path.abspath(os.path.join(img_dir_abs,samplename))
-    if not os.path.isdir(img_root): os.mkdir(img_root)
-    
     #change to images root folder (LEVEL 0)
     os.chdir(img_root)
 
@@ -143,7 +129,7 @@ def saveModalAnalysis(pulse_index, iter_index, exp_index, plot_modal_analysis_fi
     os.chdir(cur_path)
     
     
-def findAdaptiveROI(pulse_index, iter_index, exp_index, img, parent_dir_abs):
+def findAdaptiveROI(pulse_index, iter_index, exp_index, img):
     """Using Kernel Density Estimate analysis, relative amount of foreground and background regions within a given ROI can be estimated.
     If the roi is varied across the viewing area, an optimum relative strength can be found when the foreground and background area are nearly equal. This sets the value of adaptive threshold.
     Since we know certain properties about our object of interest like the approximate center of object and the aspect ratio of object area, the ROI can be set accordingly"""
@@ -173,7 +159,7 @@ def findAdaptiveROI(pulse_index, iter_index, exp_index, img, parent_dir_abs):
         if displayImages:
             if saveImages:
                 plot_modal_analysis_file = f"ModalAnalysis_xROI = {ROI[0]} yROI = {ROI[1]}"
-                saveModalAnalysis(pulse_index, iter_index, exp_index, plot_modal_analysis_file, fig_mod_analysis, parent_dir_abs)
+                saveModalAnalysis(pulse_index, iter_index, exp_index, plot_modal_analysis_file, fig_mod_analysis)
         array_rel_strength[i]   =   rel_strength   
         array_maximum[i]        =   maximum
     
@@ -183,7 +169,7 @@ def findAdaptiveROI(pulse_index, iter_index, exp_index, img, parent_dir_abs):
         
         if saveImages:
             plot_ROI_analysis_file = "ROIAnalysis_xROIlimited"
-            saveROIAnalysis(pulse_index, iter_index, exp_index, plot_ROI_analysis_file, fig_ROI_analysis, parent_dir_abs)
+            saveROIAnalysis(pulse_index, iter_index, exp_index, plot_ROI_analysis_file, fig_ROI_analysis)
 
     #if all are unimodal distributions, then there either is no object to be found or object is beyond the ROI. This means that we need to check for bigger ROIs with progressive increase in y axis width
     max_rel_strength = np.max(array_rel_strength)
@@ -326,13 +312,13 @@ def restoreColorCustomROI(img_color, img_background, customROI):
         
     return img_color_restored
 
-def processROI(pulse_index, iter_index, exp_index, img, parent_dir_abs):
+def processROI(pulse_index, iter_index, exp_index, img):
     """
         0. Zoom out from the center of the image in stages
         
         1. For each stage perform modal analysis for histogram
     """
-    ROI = findAdaptiveROI(pulse_index, iter_index, exp_index, img, parent_dir_abs)
+    ROI = findAdaptiveROI(pulse_index, iter_index, exp_index, img)
     
     return ROI
     

@@ -7,11 +7,13 @@ Created on Sat Sep 12 16:38:26 2020
 import os, os.path
 import numpy as np
 
-from globalVariables import debug, proc_dir, fits_folder, samplename
+from globalVariables import debug
+
+from KerrPy.File.loadFilePaths import fits_root
 
 from KerrPy.Image.processOpenCV import processOpenCV
 
-def savePulse(pulse_index, iter_index, exp_index, pulse, parent_dir_abs):
+def savePulse(pulse_index, iter_index, exp_index, pulse):
     """
         Take pulse_index, iter_index, exp_index, pulse array as inputs
         and save as numpy array file at level 3 of fits.
@@ -21,15 +23,6 @@ def savePulse(pulse_index, iter_index, exp_index, pulse, parent_dir_abs):
     cur_path = os.path.abspath(os.curdir)
     
     if debug: print(f"            L3 savePulse() started at E:{exp_index} I:{iter_index} P:{pulse_index}")
-
-    proc_dir_abs = os.path.abspath(os.path.join(parent_dir_abs, proc_dir))
-    if not os.path.isdir(proc_dir_abs): os.mkdir(proc_dir_abs)
-    
-    fits_dir_abs = os.path.abspath(os.path.join(proc_dir_abs,fits_folder))
-    if not os.path.isdir(fits_dir_abs): os.mkdir(fits_dir_abs)
-
-    fits_root = os.path.abspath(os.path.join(fits_dir_abs,samplename))
-    if not os.path.isdir(fits_root): os.mkdir(fits_root)
 
     #change to Fits root folder (LEVEL 0)
     os.chdir(fits_root)
@@ -62,7 +55,7 @@ def savePulse(pulse_index, iter_index, exp_index, pulse, parent_dir_abs):
     #Restore the path to the image path
     os.chdir(cur_path)
 
-def processPulse(pulse_index, iter_index, exp_index, img_file, parent_dir_abs):
+def processPulse(pulse_index, iter_index, exp_index, img_file):
     """
         LEVEL 3
         0. Fit the ellipse to the bubble
@@ -77,10 +70,10 @@ def processPulse(pulse_index, iter_index, exp_index, img_file, parent_dir_abs):
     ######################
     #Find the ellipse fit#
     ######################
-    pulse = processOpenCV(pulse_index, iter_index, exp_index, img_file, parent_dir_abs)
+    pulse = processOpenCV(pulse_index, iter_index, exp_index, img_file)
     
     #save the pulse to file    
-    savePulse(pulse_index, iter_index, exp_index, pulse, parent_dir_abs)
+    savePulse(pulse_index, iter_index, exp_index, pulse)
     
     #Restore the path
     os.chdir(cur_path)
@@ -88,7 +81,7 @@ def processPulse(pulse_index, iter_index, exp_index, img_file, parent_dir_abs):
     
     return pulse
 
-def processPulseWithCustomROI(list_counters, pulse_index, iter_index, exp_index, img_file, parent_dir_abs):
+def processPulseWithCustomROI(list_counters, pulse_index, iter_index, exp_index, img_file):
     """
         LEVEL 3
         0. Fit the ellipse to the bubble
@@ -106,7 +99,6 @@ def processPulseWithCustomROI(list_counters, pulse_index, iter_index, exp_index,
     ######################
     #Find the ellipse fit#
     ######################
-    # pulse = processOpenCV(pulse_index, iter_index, exp_index, img_file, parent_dir_abs)
     
     n_params = 6
     
@@ -126,13 +118,7 @@ def processPulseWithCustomROI(list_counters, pulse_index, iter_index, exp_index,
     list_exp_index.append(exp_index)
     list_img_file.append(img_file_abs)
     
-    #save the pulse to file    
-    # savePulse(pulse_index, iter_index, exp_index, pulse, parent_dir_abs)
-    
     #Restore the path
     os.chdir(cur_path)
 
-    
-    # return pulse
-    
     return list_counters
