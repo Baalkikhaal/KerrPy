@@ -7,9 +7,9 @@ Created on Thu Oct  8 12:15:29 2020
 
 import os, os.path
 
-from globalVariables import debug, raw_dir, proc_dir, seq_file, samplename
+from globalVariables import debug, raw_dir, proc_dir, samplename
 
-from globalVariables import mpl_stylesheet
+from globalVariables import mpl_stylesheet, __file__
 
 
 #### global read only #######
@@ -24,7 +24,10 @@ space_filename = 'space.npy'
 controls_filename = 'controls.npy'
 
 ######### Post Processing folders and files ###################
-parent_dir_abs = os.path.abspath(os.path.join(os.pardir, os.pardir))
+
+# From the `__file__` attribute of globalVariables, let us find the 
+# parent directory. We assume globalVariables is in the parent directory
+parent_dir_abs = os.path.dirname(__file__)
 
 if debug: print(f'parent_dir_abs: {parent_dir_abs}')
 
