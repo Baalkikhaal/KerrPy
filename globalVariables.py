@@ -15,10 +15,10 @@ dict_image = {
               }
 
 dict_ROI = {
-    'isWidget'      : False,         # flag for widget based ROI selection 
+    'isWidget'      : True,         # flag for widget based ROI selection 
     # if True the isAdaptive flag and its associates are ignored
     # if False check for isAdaptive flag
-    'isAdaptive'    : False,        # flag for adaptive ROI
+    'isAdaptive'    : True,        # flag for adaptive ROI
     # if True the following keys will be used.
         'center'    : (511,672),    #center of the object to be identified
         'aspr'      : 2/3,          # x_width/y_width for zooming out ROI.
