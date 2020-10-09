@@ -7,7 +7,7 @@ Created on Sat Sep 12 16:38:26 2020
 import os, os.path
 import numpy as np
 
-from globalVariables import debug
+from globalVariables import debug, dict_ROI
 
 from KerrPy.File.loadFilePaths import fits_root
 
@@ -55,11 +55,18 @@ def savePulse(pulse_index, iter_index, exp_index, pulse):
     #Restore the path to the image path
     os.chdir(cur_path)
 
-def processPulse(pulse_index, iter_index, exp_index, img_file):
+def processPulse(pulse_index, iter_index, exp_index, img_file, **kwargs):
     """
         LEVEL 3
-        0. Fit the ellipse to the bubble
-        1. Save the fits
+            0. Fit the ellipse to the bubble
+            1. Save the fits
+            2. if optional keyword argument `list_counters` is passed,
+                0. append the number of params to shape of space.
+                1. append the current image's `pulse_index`, `iter_index`, `exp_index` and absolute filepath
+                to the corresponding sub-lists
+                2. since pulse needs to be returned, better to initialize to zeros.
+
+            3. Return the pulses
     """
     
     if debug: print(f"            L3 processPulse() started at E:{exp_index} I:{iter_index} P:{pulse_index}")
@@ -67,58 +74,43 @@ def processPulse(pulse_index, iter_index, exp_index, img_file):
     #Store the current location before relocating
     cur_path = os.path.abspath(os.curdir)
     
-    ######################
-    #Find the ellipse fit#
-    ######################
-    pulse = processOpenCV(pulse_index, iter_index, exp_index, img_file)
-    
-    #save the pulse to file    
-    savePulse(pulse_index, iter_index, exp_index, pulse)
-    
-    #Restore the path
-    os.chdir(cur_path)
-
-    
-    return pulse
-
-def processPulseWithCustomROI(list_counters, pulse_index, iter_index, exp_index, img_file):
-    """
-        LEVEL 3
-        0. Fit the ellipse to the bubble
-        1. Save the fits
-    """
-    
-    if debug: print(f"            L3 processPulse() started at E:{exp_index} I:{iter_index} P:{pulse_index}")
-
-    #Store the current location before relocating
-    cur_path = os.path.abspath(os.curdir)
-    
-    # absolute path to the image
-    img_file_abs = os.path.abspath(os.path.join(cur_path, img_file))
-    
-    ######################
-    #Find the ellipse fit#
-    ######################
+    # initialize pulse params
     
     n_params = 6
+    pulse = np.zeros(n_params, dtype=np.float)
     
-    # append the number of params to list_space_shape
-    list_counters[0][3] = n_params
-    
-    #instead of ellipse fitting, let us append the indices of the pulse, 
-    # iteration, experiment to the counters
-    
-    list_pulse_index = list_counters[1]
-    list_iter_index = list_counters[2]
-    list_exp_index = list_counters[3]
-    list_img_file = list_counters[4]
-    
-    list_pulse_index.append(pulse_index)
-    list_iter_index.append(iter_index)
-    list_exp_index.append(exp_index)
-    list_img_file.append(img_file_abs)
-    
+    if not dict_ROI['isWidget']:
+        
+        ######################
+        #Find the ellipse fit#
+        ######################
+        pulse = processOpenCV(pulse_index, iter_index, exp_index, img_file)
+        
+        #save the pulse to file    
+        savePulse(pulse_index, iter_index, exp_index, pulse)
+
+    if list_counters := kwargs.get('list_counters'):
+
+        # absolute path to the image
+        img_file_abs = os.path.abspath(os.path.join(cur_path, img_file))
+        
+        # append the number of params to list_space_shape
+        list_counters[0][3] = pulse.shape[0]
+        
+        #instead of ellipse fitting, let us append the indices of the pulse, 
+        # iteration, experiment to the counters
+        
+        list_pulse_index = list_counters[1]
+        list_iter_index = list_counters[2]
+        list_exp_index = list_counters[3]
+        list_img_file = list_counters[4]
+        
+        list_pulse_index.append(pulse_index)
+        list_iter_index.append(iter_index)
+        list_exp_index.append(exp_index)
+        list_img_file.append(img_file_abs)
+
     #Restore the path
     os.chdir(cur_path)
 
-    return list_counters
+    return pulse

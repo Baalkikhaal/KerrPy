@@ -7,11 +7,9 @@ Created on Mon Sep 14 17:08:29 2020
 import cv2
 import numpy as np
 
-from globalVariables import deep_debug
+from globalVariables import deep_debug, dict_image
 
-from globalVariables import center_ROI, nucleation_down, speckless_second
-
-from globalVariables import kernel_gaussian, kernel_median, kernel_speckless, kernel_speckless_second
+from globalVariables import dict_ROI, dict_openCV
 
 
 def readImage(img_file):
@@ -43,6 +41,7 @@ def originROI(ROI):
         Return the origin of ROI 
         i.e. top left corner
     """
+    center_ROI = dict_ROI['center']
     x_width, y_width    = ROI
     x_center, y_center  = center_ROI 
     
@@ -57,35 +56,43 @@ def cropImageDetails(img):
     """
         Strip the image details at the bottom.
         The strip is width 44, 1344
+        
+        # TODO add exception if crop is not valid i.e. when window is not
+            bounded within the image
     """
     return img[ 0:-44, :]
 
 
-def cropImage(img, ROI):
+def cropImage(img, windowROI):
     """
         0. Find the origin of the crop
         1. Crop the image
+        
+        # TODO add exception if crop is not valid i.e. when window is not
+            bounded within the image
     """
+    img_crop = img[windowROI[0] : windowROI[2], windowROI[1] : windowROI[3]]
+    
+    if deep_debug: print(f"dimensions of img_crop with customWindowROI: {windowROI} are {img_crop.shape}")    
+    return img_crop
+
+def getWindowROI(ROI):
+    """
+        Get the tuple of (x0, y0, x1, y1) of ROI
+    """
+    
+    x_width = ROI[0]
+    y_width = ROI[1]
     origin = originROI(ROI)
+  
+    x0 = origin[0]
+    y0 = origin[1]
+    x1 = x0 + x_width
+    y1 = y0 + y_width
     
-    img_crop = img[origin[0] : origin[0] + ROI[0], origin[1] : origin[1] + ROI[1]]
-    
-    return img_crop
+    return x0, y0, x1, y1
 
-def cropImageCustomROI(img, customROI):
-    """
-        0. Find the origin of the crop
-        1. Crop the image
-    """
-    
-    img_crop = img[customROI[0] : customROI[2], customROI[1] : customROI[3]]
-    
-    if deep_debug: print(f"dimensions of img_crop with customROI: {customROI} are {img_crop.shape}")
-    
-    return img_crop
-
-
-def processImage(img, ROI):
+def processImage(img, windowROI):
     """"
         0. Crop the image
         1. Histogram equalize the image
@@ -96,31 +103,15 @@ def processImage(img, ROI):
         kernel_Gaussian
         kernel_median
     """
-    img_crop = cropImage(img, ROI)
+    kernel_gaussian = dict_openCV['kernel_gaussian']
+    kernel_median   = dict_openCV['kernel_median']
+    
+    img_crop = cropImage(img, windowROI)
     img_equ = cv2.equalizeHist(img_crop)
     img_blur = cv2.GaussianBlur(img_equ,(kernel_gaussian,kernel_gaussian),0)
     img_med= cv2.medianBlur(img_blur,kernel_median)
     
     return img_med
-
-def processImageCustomROI(img, customROI):
-    """"
-        0. Crop the image
-        1. Histogram equalize the image
-        2. Gaussian blur the image
-        3. Median filter the image
-        
-        Use the global training parameters
-        kernel_Gaussian
-        kernel_median
-    """
-    img_crop = cropImageCustomROI(img, customROI)
-    img_equ = cv2.equalizeHist(img_crop)
-    img_blur = cv2.GaussianBlur(img_equ,(kernel_gaussian,kernel_gaussian),0)
-    img_med= cv2.medianBlur(img_blur,kernel_median)
-    
-    return img_med
-
 
 def removeSpeckles(img):
     """
@@ -139,6 +130,9 @@ def removeSpeckles(img):
         removal of speckless differently for nucleation up and down images
          
     """
+    kernel_speckless        = dict_openCV['kernel_speckless']
+    speckless_second        = dict_openCV['speckless_second']
+    kernel_speckless_second = dict_openCV['kernel_speckless_second']
 
     img_speckless = np.zeros(img.shape)
 
@@ -146,7 +140,8 @@ def removeSpeckles(img):
         
     kernel = np.ones((kernel_speckless,kernel_speckless),np.uint8)
 
-    
+    nucleation_down = dict_image['nucleation_down']    
+
     if nucleation_down:
                 
         
@@ -203,16 +198,18 @@ def removeSpeckles(img):
         
     return img_speckless
 
-def cannyEdgesAndContoursOpenCV(image, nucleation_down, lower_threshold=100, upper_threshold=200):
+def cannyEdgesAndContoursOpenCV(image, lower_threshold=100, upper_threshold=200):
     """
         0. find Canny edges using CV
         as it has advantage of removing final speckles
         if still present after opening and closing
     """
-    from globalVariables import nucleation_down, deep_debug
     
     edges = []
     contours = []
+    
+    nucleation_down = dict_image['nucleation_down']
+    
     if nucleation_down:
         edges = cv2.Canny(image, lower_threshold, upper_threshold)
     else:

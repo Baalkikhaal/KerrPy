@@ -3,6 +3,14 @@
 Created on Thu Oct  8 12:15:29 2020
 
 @author: fubar
+
+The path to the imported module is retrieved using __file__attribute
+
+A better alternative is to use `inspect` module.
+
+Reference: retrieve module's path
+
+    https://stackoverflow.com/questions/247770/how-to-retrieve-a-modules-path/12154601#12154601
 """
 
 import os, os.path

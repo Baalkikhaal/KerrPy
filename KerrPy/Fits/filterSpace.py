@@ -7,7 +7,7 @@ Created on Sat Sep 19 18:22:23 2020
 
 import numpy as np
 
-from globalVariables import min_confidence
+from globalVariables import dict_fit
 
 def filterSpace(space):
     """
@@ -22,6 +22,7 @@ def filterSpace(space):
         
         Return the filtered space
     """
+    min_confidence = dict_fit['min_confidence']
     confidence = space[:,:,:,0]
     
     badfits = confidence < min_confidence

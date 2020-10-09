@@ -1,6 +1,10 @@
 # -*- coding: utf-8 -*-
 #!/usr/bin/env python
 """
+This module is adapted from mrgaze project
+
+Reference: 
+    https://github.com/jmtyszka/mrgaze
 AUTHOR : Mike Tyszka
 PLACE  : Caltech
 DATES  : 2014-05-07 JMT From scratch
@@ -22,6 +26,7 @@ Copyright 2014 California Institute of Technology.
 import numpy as np
 import cv2
 
+from globalVariables import debug, dict_fit
 #---------------------------------------------
 # Ellipse Fitting Functions
 #---------------------------------------------
@@ -346,10 +351,11 @@ def OverlayRANSACFit(img, all_pnts, inlier_pnts, ellipse):
     img_overlay = cv2.ellipse(img_overlay, ellipse, (0, 255,255), 3)
     return img_overlay
 
-def ConfidenceInFit(pnts, ellipse, max_norm_err_sq, DEBUG):
+def ConfidenceInFit(pnts, ellipse):
     """
     Given an ellipse and the points, return the percentage of points which lie within a given allowed error of the ellipse. This sets the confidence of the fit
     """
+    max_norm_err_sq = dict_fit['max_norm_err_sq']
     # Count pnts (n x 2)
     n_pnts = pnts.shape[0]
     # Calculate normalized errors for all points
@@ -375,12 +381,11 @@ def ConfidenceInFit(pnts, ellipse, max_norm_err_sq, DEBUG):
         print(" ALERT! There are no edges...")
         perc_inliers = 0.0
         
-    if DEBUG: print(f"                c(fit): {np.int(perc_inliers)}%")
+    if debug: print(f"                c(fit): {np.int(perc_inliers)}%")
     return perc_inliers, inlier_pnts, norm_err
     
 if __name__ == '__main__':
     unittest = True
-    DEBUG= True
     max_norm_err_sq =   20.0    # maximum allowed normalized error allowed for a point to be an inlier
 
 #    img_edges = cv2.imread('06_CannyEdges.png', 0)
@@ -398,6 +403,6 @@ if __name__ == '__main__':
     pnts = np.transpose(np.nonzero(edges))
 
     ellipse = FitEllipse_LeastSquares(pnts)
-    perc_inliers, inlier_pnts, norm_err = ConfidenceInFit (pnts, ellipse, max_norm_err_sq, DEBUG)
+    perc_inliers, inlier_pnts, norm_err = ConfidenceInFit (pnts, ellipse)
     
     OverlayRANSACFit(img_color, pnts, inlier_pnts, ellipse)

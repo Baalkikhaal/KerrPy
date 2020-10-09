@@ -12,7 +12,7 @@ from globalVariables import debug, deep_debug
 
 from KerrPy.File.loadFilePaths import raw_dir_abs, space_filepath
 
-from KerrPy.File.processExperiment import processExperiment, processExperimentWithCustomROI
+from KerrPy.File.processExperiment import processExperiment
 
 def extractControlsFromFolderName(foldername):
     """
@@ -89,19 +89,24 @@ def saveSpace(space):
     np.save(space_filepath, np.array(space))
     
 
-def processSpace(controls):
+def processSpace(controls, **kwargs):
     """
         Created on Sat Sep 12 17:02:16 2020
 
         @author: fubar
         
-        Takes controls as input.
+        0. Takes controls as input.
         
-        Scan through the experiments in raw dir
+        1. Scan through the experiments in raw dir
         
-        For this use the controls to cycle through the experiments,
+        2. For this use the controls to cycle through the experiments,
         instead of listing the directories.
         
+        3. if optional keyword argument `list_counters` is passed,
+            0. append the number of experiments to shape of space
+            
+            1. it is passed onto processExperiment()
+            for counting the images.
         
     """
     
@@ -118,9 +123,14 @@ def processSpace(controls):
     space = []
     
     # a space contains experiments
-    # so loop the experiments in the controls sequence
     n_exp = len(controls)
+    
+    if list_counters := kwargs.get('list_counters'):
+        
+        # append the number of experiments to list_space_shape
+        list_counters[0][0] = n_exp
 
+    # now loop the experiments in the controls sequence
     for i in np.arange(n_exp):
         exp_index = i
         exp_controls = controls[i]
@@ -131,7 +141,7 @@ def processSpace(controls):
 
         exp_dir = findExperiment(exp_controls)
         
-        experiment = processExperiment(exp_index, exp_dir)
+        experiment = processExperiment(exp_index, exp_dir, **kwargs)
         
         space.append(experiment)
         
@@ -141,62 +151,6 @@ def processSpace(controls):
     os.chdir(cur_path)
     
     return space
-
-def processSpaceWithCustomROI(list_counters, controls):
-    """
-        Created on Sat Sep 12 17:02:16 2020
-
-        @author: fubar
-        
-        Takes controls as input.
-        
-        Scan through the experiments in raw dir
-        
-        For this use the controls to cycle through the experiments,
-        instead of listing the directories.
-        
-        
-    """
-    
-    if debug: print("L0 processSpace() started")
-    
-    #Store the current location before relocating
-    cur_path = os.path.abspath(os.curdir)
-    
-    # enter the experiment directory Level 1
-    os.chdir(raw_dir_abs)
-
-    
-    # initialize a list for saving space
-    # space = []
-    
-    # a space contains experiments
-    # so loop the experiments in the controls sequence
-    n_exp = len(controls)
-    
-    # append the number of experiments to list_space_shape
-    list_counters[0][0] = n_exp
-
-    for i in np.arange(n_exp):
-        exp_index = i
-        exp_controls = controls[i]
-        
-        if debug: print(f"L0 E: {exp_index} = {exp_controls}")
-        
-        # find the experiment directory corresponding to experiment index
-
-        exp_dir = findExperiment(exp_controls)
-        
-        list_counters = processExperimentWithCustomROI(list_counters, exp_index, exp_dir)
-        
-    
-    #Restore the path
-    os.chdir(cur_path)
-    
-    # return space
-    
-    return list_counters
-
 
 if __name__ == '__main__':
     foldername = 'NUCLEATE-M_IPBHx0.00_Ip-1.00E+1_tp6.50E+3_DUR CYC5'

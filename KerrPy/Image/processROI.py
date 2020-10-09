@@ -9,12 +9,12 @@ import os, os.path
 import numpy as np
 
 from globalVariables import debug
-from globalVariables import center_ROI, aspr_ROI, adaptive_ROI_seq
+from globalVariables import dict_ROI
 from globalVariables import displayImages, saveImages
 
 from KerrPy.File.loadFilePaths import img_root
 
-from KerrPy.Image.routinesOpenCV import processImage
+from KerrPy.Image.routinesOpenCV import processImage, getWindowROI
 
 from KerrPy.Statistics.routinesSciPy import modalAnalysis
 
@@ -134,6 +134,8 @@ def findAdaptiveROI(pulse_index, iter_index, exp_index, img):
     If the roi is varied across the viewing area, an optimum relative strength can be found when the foreground and background area are nearly equal. This sets the value of adaptive threshold.
     Since we know certain properties about our object of interest like the approximate center of object and the aspect ratio of object area, the ROI can be set accordingly"""
 
+    aspr_ROI = dict_ROI['aspr']
+    adaptive_ROI_seq = dict_ROI['seq']
     array_x_ROI     =   np.array(adaptive_ROI_seq)
     array_y_ROI     =   (array_x_ROI*aspr_ROI).astype(int)
     n           =   array_x_ROI.size
@@ -147,12 +149,14 @@ def findAdaptiveROI(pulse_index, iter_index, exp_index, img):
         # custom ROI        
         ROI = [array_x_ROI[i], array_y_ROI[i]]
         
+        windowROI = getWindowROI(ROI)
+        
         # process the image
-        img_med = processImage(img, ROI)
+        img_med = processImage(img, windowROI)
 
         img_background = np.zeros([1022,1344], dtype = np.uint8)
         
-        img_restored = restoreROI(img_med, img_background)
+        img_restored = restoreROI(img_med, img_background, windowROI)
         
         maximum,rel_strength, fig_mod_analysis    =   modalAnalysis(img_med, img_restored, ROI)    #strength is zero if distribution is unimodal and close to zero if the foreground is very small compared to background or vice versa
         
@@ -186,18 +190,26 @@ def findAdaptiveROI(pulse_index, iter_index, exp_index, img):
     return optimum_ROI
 
 
-def restoreROI(cropimg, img_background):
+def restoreROI(cropimg, img_background, windowROI):
     ''' Restore the cropped image onto the 1022 x 1344 canvas'''
-    ROI = cropimg.shape
-    x_width = ROI[0]
-    y_width = ROI[1]
+    
+    # transpose the coordinates as openCV and numpy coordinate systems are tranpose to each other
+    origin_x_customROI = windowROI[0]
+    origin_y_customROI = windowROI[1]
+    
+    end_x_customROI = windowROI[2]
+    end_y_customROI = windowROI[3]
+    
     img_restored = img_background
-    x0 = center_ROI[0] - x_width//2
-    y0 = center_ROI[1] - y_width//2
-#    x1 = center_ROI[0] + x_width//2
-#    y1 = center_ROI[1] + y_width//2
-    x1 = x0 + cropimg.shape[0]
-    y1 = y0 + cropimg.shape[1]    
+    
+    # origin of the ROI in absolute coordinates
+    x0 = origin_x_customROI
+    y0 = origin_y_customROI
+
+    # end of the ROI in absolute coordinates
+    x1 = end_x_customROI
+    y1 = end_y_customROI    
+    
     img_restored[x0:x1, y0:y1] = cropimg
     
     if displayImages:
@@ -205,16 +217,15 @@ def restoreROI(cropimg, img_background):
         displayImage(img_restored, title)
     return img_restored
 
-def restoreColorROI(img_color, img_background):
+def restoreColorROI(img_color, img_background, windowROI):
     """
         Restore the colored crop image with ellipse fit
         
         onto the background
     """
-    ROI = img_color.shape
-
-    x_width = ROI[0]
-    y_width = ROI[1]
+    # origin of the ROI in absolute coordinates
+    x0 = windowROI[0]
+    y0 = windowROI[1]
     
     img_color_restored = np.zeros((img_background.shape[0],img_background.shape[1],3), dtype=np.uint8)
     
@@ -222,17 +233,9 @@ def restoreColorROI(img_color, img_background):
     img_color_restored[:,:,1] = img_background 
     img_color_restored[:,:,2] = img_background 
 
-    
-    # origin of the ROI in absolute coordinates
-    x0 = center_ROI[0] - x_width//2
-    y0 = center_ROI[1] - y_width//2
-    
     # find the points in the colored crop image which are non zero
-    
     pnts = np.transpose(np.asarray(np.nonzero(img_color)))
 
-    # print(f"pnts: {pnts}")
-    
     # loop over the non zero indices of the crop and appropriately,
     # set the color coordinates in absolute pixels in restored image
     
@@ -244,15 +247,15 @@ def restoreColorROI(img_color, img_background):
         
     return img_color_restored
 
-def restoreCustomROI(cropimg, img_background, customROI):
+def restoreCustomROI(cropimg, img_background, windowROI):
     ''' Restore the cropped image onto the 1022 x 1344 canvas'''
 
     # transpose the coordinates as openCV and numpy coordinate systems are tranpose to each other
-    origin_x_customROI = customROI[0]
-    origin_y_customROI = customROI[1]
+    origin_x_customROI = windowROI[0]
+    origin_y_customROI = windowROI[1]
     
-    end_x_customROI = customROI[2]
-    end_y_customROI = customROI[3]
+    end_x_customROI = windowROI[2]
+    end_y_customROI = windowROI[3]
     
     img_restored = img_background 
 
@@ -260,6 +263,7 @@ def restoreCustomROI(cropimg, img_background, customROI):
     x0 = origin_x_customROI
     y0 = origin_y_customROI
 
+    # end of the ROI in absolute coordinates
     x1 = end_x_customROI
     y1 = end_y_customROI    
     img_restored[x0:x1, y0:y1] = cropimg
@@ -269,20 +273,16 @@ def restoreCustomROI(cropimg, img_background, customROI):
         displayImage(img_restored, title)
     return img_restored
 
-def restoreColorCustomROI(img_color, img_background, customROI):
+def restoreColorCustomROI(img_color, img_background, windowROI):
     """
         Restore the colored crop image with ellipse fit
         
         onto the background
     """
     
-    
-    # x_width = customROI[2] - customROI[0]
-    # y_width = customROI[3] - customROI[1]
-    
-    # transpose the coordinates as openCV and numpy coordinate systems are tranpose to each other
-    origin_x_customROI = customROI[0]
-    origin_y_customROI = customROI[1]
+    # origin of the ROI in absolute coordinates
+    x0 = windowROI[0]
+    y0 = windowROI[1]
     
     img_color_restored = np.zeros((img_background.shape[0],img_background.shape[1],3), dtype=np.uint8)
     
@@ -290,17 +290,9 @@ def restoreColorCustomROI(img_color, img_background, customROI):
     img_color_restored[:,:,1] = img_background 
     img_color_restored[:,:,2] = img_background 
 
-    
-    # origin of the ROI in absolute coordinates
-    x0 = origin_x_customROI
-    y0 = origin_y_customROI
-    
     # find the points in the colored crop image which are non zero
-    
     pnts = np.transpose(np.asarray(np.nonzero(img_color)))
 
-    # print(f"pnts: {pnts}")
-    
     # loop over the non zero indices of the crop and appropriately,
     # set the color coordinates in absolute pixels in restored image
     

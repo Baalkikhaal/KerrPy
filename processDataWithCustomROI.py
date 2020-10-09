@@ -5,7 +5,6 @@ Created on Sat Sep 12 17:19:27 2020
 @author: fubar
 """
 
-import os, os.path
 import numpy as np
 import cv2
 
@@ -25,17 +24,17 @@ import matplotlib.pyplot as plt
 from matplotlib.widgets import RectangleSelector
 ########  ends here ###############################
 
-from globalVariables import deep_debug, image_shape
+from globalVariables import deep_debug, dict_ROI, image_shape
 
 from KerrPy.File.loadFilePaths import space_filepath
 
-from KerrPy.Image.processOpenCV import findEdgeCustomROI, saveImage, saveRestoredImage
+from KerrPy.Image.processOpenCV import findEdge, saveImage, saveRestoredImage
 
-from KerrPy.Image.processROI import restoreCustomROI, restoreColorCustomROI
+from KerrPy.Image.processROI import restoreROI, restoreColorROI
 
 from KerrPy.File.processPulse import savePulse
 
-from KerrPy.Fits.processData import processDataWithCustomROI
+from KerrPy.Fits.processData import processData
 
 from KerrPy.File.processSpace import saveSpace
 
@@ -51,17 +50,16 @@ list_counters = [list_space_shape, list_pulse_index, list_iter_index, list_exp_i
 
 
 # find the indices 
-list_counters = processDataWithCustomROI(list_counters)
+processData(list_counters=list_counters)
+
+if deep_debug: print(f'list_counters: {list_counters}')
+
 list_space_shape = list_counters[0]
 list_pulse_index = list_counters[1]
 list_iter_index = list_counters[2]
 list_exp_index = list_counters[3]
 list_img_file = list_counters[4]
 
-
-# set the shape of space array
-space = np.zeros((list_space_shape[0], list_space_shape[1], list_space_shape[2], list_space_shape[3]), dtype=np.float)
-np.save(space_filepath, np.array(space))
 
 # number of images
 n_images = len(list_img_file)
@@ -177,13 +175,14 @@ def onselect(eclick, erelease):
     iter_index = list_iter_index[i]
     exp_index = list_exp_index[i]
     
-    pulse, img_color, customROI = findEdgeCustomROI(coordinates, pulse_index, iter_index, exp_index, img)
+    ###### ** important ** pass coordinates as optional keyword argument to findEdge()
+    pulse, img_color, windowROI = findEdge(pulse_index, iter_index, exp_index, img, coordinates=coordinates)
 
 
     ############## now restore the crop ####################
     
     img_background = np.ones(img.shape, dtype = np.uint8)*255
-    img_crop_restored = restoreCustomROI(img_crop, img_background, customROI)
+    img_crop_restored = restoreROI(img_crop, img_background, windowROI)
 
     # write the img_crop_restored to cropped axis 
     blit_crop_restored = myWidget.ax.figure.axes[1].imshow(img_crop_restored, cmap='gray', vmin=0, vmax=255, animated=True)
@@ -198,7 +197,7 @@ def onselect(eclick, erelease):
     
     ###########now restore the fit ###############    
 
-    img_restored = restoreColorCustomROI(img_color, img, customROI)
+    img_restored = restoreColorROI(img_color, img, windowROI)
     
     # update the subplot restored image
     blit_restored = myWidget.ax.figure.axes[2].imshow(img_restored, animated=True)
@@ -367,63 +366,69 @@ def toggle_selector(event):
         myWidget.set_active(True)
 
 if __name__ == '__main__':
+    
+    if dict_ROI['isWidget']:
 
-    ##### set the matplotlib figure params ##################
-    mpl.rcParams['figure.figsize'] = 9.0,4.0
-    mpl.rcParams['figure.subplot.bottom'] = 0.1
-    mpl.rcParams['figure.subplot.left'] = 0.1
-    mpl.rcParams['figure.subplot.right'] = 0.9
-    mpl.rcParams['figure.subplot.top'] = 0.7
-
-    fig, axes = plt.subplots(1,3)
+        ##### set the matplotlib figure params ##################
+        mpl.rcParams['figure.figsize'] = 9.0,4.0
+        mpl.rcParams['figure.subplot.bottom'] = 0.1
+        mpl.rcParams['figure.subplot.left'] = 0.1
+        mpl.rcParams['figure.subplot.right'] = 0.9
+        mpl.rcParams['figure.subplot.top'] = 0.7
+    
+        fig, axes = plt.subplots(1,3)
+        
+        
+        fig.suptitle('custom ROI selection', fontsize= 24)
+        fig.text(0.5,0.85, '''Press `N' to iterate image, `D' to discard image, `Q' to kill the window''',
+                 ha='center', va='center')
+        axes[0].set_title('raw image')
+        axes[1].set_title('cropped image')
+        axes[2].set_title('restored image')
     
     
-    fig.suptitle('custom ROI selection', fontsize= 24)
-    fig.text(0.5,0.85, '''Press `N' to iterate image, `D' to discard image, `Q' to kill the window''',
-             ha='center', va='center')
-    axes[0].set_title('raw image')
-    axes[1].set_title('cropped image')
-    axes[2].set_title('restored image')
-
-
-    ############# initialize the widget ##################
-    # use a white background image
-    img_white = np.ones(image_shape, dtype=np.uint8)*255
-    axes[0].imshow(img_white, cmap='gray', vmin=0, vmax=255)
-
-    axes[1].imshow(img_white, cmap='gray', vmin=0, vmax=255)
-    # and also set the autoscale OFF
-    axes[1].set_autoscale_on(False)
-
-    # also draw the restored image to set the bbox dimensions
-    axes[2].imshow(img_white, cmap='gray', vmin=0, vmax=255)    
-
-    #pause for a 'short' to ensure the figure is rendered
-    # atleast one before storing the bbox info (in sec)
-    plt.pause(0.1)
+        ############# initialize the widget ##################
+        # use a white background image
+        img_white = np.ones(image_shape, dtype=np.uint8)*255
+        axes[0].imshow(img_white, cmap='gray', vmin=0, vmax=255)
     
-    # use this as background for future restoration
-    # get copy of entire figure (everything inside fig.bbox) sans animated artist
-    bg = fig.canvas.copy_from_bbox(fig.bbox)
+        axes[1].imshow(img_white, cmap='gray', vmin=0, vmax=255)
+        # and also set the autoscale OFF
+        axes[1].set_autoscale_on(False)
     
-    # a reference to the RectangleSelector widget is needed
-    # to prevent from Garbage Collection
-    myWidget = RectangleSelector(axes[0], onselect, useblit=True)
+        # also draw the restored image to set the bbox dimensions
+        axes[2].imshow(img_white, cmap='gray', vmin=0, vmax=255)    
     
-
-    ######## initialize attributes of iterateImages #############
-    iterateImages.counter = 0
-    iterateImages.space = space
-    iterateImages.img = img_white
-    iterateImages.img_color = img_white
-    iterateImages.img_restored = img_white
+        #pause for a 'short' to ensure the figure is rendered
+        # atleast one before storing the bbox info (in sec)
+        plt.pause(0.1)
+        
+        # use this as background for future restoration
+        # get copy of entire figure (everything inside fig.bbox) sans animated artist
+        bg = fig.canvas.copy_from_bbox(fig.bbox)
+        
+        # a reference to the RectangleSelector widget is needed
+        # to prevent from Garbage Collection
+        myWidget = RectangleSelector(axes[0], onselect, useblit=True)
     
-    iterateImages()
+        ######## initialize attributes of iterateImages #############
 
-    print(f'fig.canvas.supports_blit property: {fig.canvas.supports_blit}' )
-
-    #### IMPORTANT: create event loop for matplotlib fig window ####
-    myWidget.connect_event('key_press_event', toggle_selector)
+        # set the shape of space array
+        space = np.zeros((list_space_shape[0], list_space_shape[1], list_space_shape[2], list_space_shape[3]), dtype=np.float)
+        np.save(space_filepath, np.array(space))
+        
+        iterateImages.counter   = 0
+        iterateImages.space     = space
+        iterateImages.img       = img_white
+        iterateImages.img_color = img_white
+        iterateImages.img_restored = img_white
+        
+        iterateImages()
+    
+        print(f'fig.canvas.supports_blit property: {fig.canvas.supports_blit}' )
+    
+        #### IMPORTANT: create event loop for matplotlib fig window ####
+        myWidget.connect_event('key_press_event', toggle_selector)
 
 
     
