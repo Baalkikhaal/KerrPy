@@ -379,7 +379,7 @@ if __name__ == '__main__':
         fig, axes = plt.subplots(1,3)
         
         
-        fig.suptitle('custom ROI selection', fontsize= 24)
+        fig.suptitle('widget ROI selection', fontsize= 24)
         fig.text(0.5,0.85, '''Press `N' to iterate image, `D' to discard image, `Q' to kill the window''',
                  ha='center', va='center')
         axes[0].set_title('raw image')

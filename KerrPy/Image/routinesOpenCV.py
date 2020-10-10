@@ -9,7 +9,7 @@ import numpy as np
 
 from globalVariables import deep_debug, dict_image
 
-from globalVariables import dict_ROI, dict_openCV
+from globalVariables import dict_openCV
 
 
 def readImage(img_file):
@@ -36,21 +36,7 @@ def writeImage(img_file, img):
     """
     cv2.imwrite(img_file, img)
 
-def originROI(ROI):
-    """
-        Return the origin of ROI 
-        i.e. top left corner
-    """
-    center_ROI = dict_ROI['center']
-    x_width, y_width    = ROI
-    x_center, y_center  = center_ROI 
-    
-    x_origin   = int(x_center - x_width//2)
-    y_origin   = int(y_center - y_width//2)
-    
-    origin = [x_origin, y_origin]
-    
-    return origin
+
 
 def cropImageDetails(img):
     """
@@ -73,24 +59,9 @@ def cropImage(img, windowROI):
     """
     img_crop = img[windowROI[0] : windowROI[2], windowROI[1] : windowROI[3]]
     
-    if deep_debug: print(f"dimensions of img_crop with customWindowROI: {windowROI} are {img_crop.shape}")    
+    if deep_debug: print(f"dimensions of img_crop with windowROI: {windowROI} are {img_crop.shape}")    
     return img_crop
 
-def getWindowROI(ROI):
-    """
-        Get the tuple of (x0, y0, x1, y1) of ROI
-    """
-    
-    x_width = ROI[0]
-    y_width = ROI[1]
-    origin = originROI(ROI)
-  
-    x0 = origin[0]
-    y0 = origin[1]
-    x1 = x0 + x_width
-    y1 = y0 + y_width
-    
-    return x0, y0, x1, y1
 
 def processImage(img, windowROI):
     """"

@@ -11,7 +11,7 @@ import numpy as np
 import cv2
 
 
-from globalVariables import debug, deep_debug, dict_ROI
+from globalVariables import debug, deep_debug
 
 from globalVariables import displayImages, saveImages, saveRestoredImages
 
@@ -21,7 +21,6 @@ from KerrPy.Image.processROI import processROI, restoreColorROI
 
 from KerrPy.Image.routinesOpenCV import processImage, removeSpeckles, cannyEdgesAndContoursOpenCV
 
-from KerrPy.Image.routinesOpenCV import getWindowROI
 
 from KerrPy.Figure.routinesMatplotLib import displayImage, displayNormError
 
@@ -113,42 +112,9 @@ def findEdge(pulse_index, iter_index, exp_index, img, **kwargs):
     # TODO sub function ROI conditionals to processROI
     """
     
-    aspr_ROI = dict_ROI['aspr']
-    adaptive_ROI_seq = dict_ROI['seq']
+    # process ROI
+    windowROI = processROI(pulse_index, iter_index, exp_index, img, **kwargs)
     
-    #initialize ROI to empty list
-    ROI = []
-    
-    # initialize pulse with number of params equal to 6
-    n_params = 6
-    pulse = np.zeros(n_params, dtype=np.float)
-
-    #initialize img_color to zeros
-    img_color = np.zeros((img.shape[0], img.shape[1], 3))
-
-    if dict_ROI['isWidget']:
-        # get the coordinates from the keyword arguments
-        coords = kwargs.get('coordinates', )
-
-        if coords:
-            # interchange rows and columns to reflect coordinate transpose of openCV and numpy
-            windowROI = np.array([coords[1][0], coords[0][0], coords[1][2], coords[0][2]])
-            windowROI = windowROI.astype(int)
-            if deep_debug: print(f"WindowROI: {windowROI}")
-        else:
-            # set windowROI to the complete image
-            windowROI = np.array([0, 0, img.shape[0], img.shape[1]], dtype=np.int)
-
-    elif dict_ROI['isAdaptive']:
-        #find optimum ROI
-        ROI = processROI(pulse_index, iter_index, exp_index, img) 
-        windowROI = getWindowROI(ROI)
-        
-    else:
-        #set default ROI corresponding to maximum ROI of the given seq
-        ROI = np.array([adaptive_ROI_seq[-1], aspr_ROI * adaptive_ROI_seq[-1]], dtype = np.int)
-        windowROI = getWindowROI(ROI)
-
     # process the image
     img_med = processImage(img, windowROI)
     

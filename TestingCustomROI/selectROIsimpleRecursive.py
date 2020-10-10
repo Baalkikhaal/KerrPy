@@ -3,6 +3,8 @@
 Created on Tue Sep 22 14:55:29 2020
 
 @author: fubar
+
+ALERT! before running this script set the samplename to Training
 """
 
 import os, os.path
@@ -20,7 +22,7 @@ import cv2
 
 # sys.path.append(KerrPy_folder)
 
-from KerrPy.Image.processOpenCV import saveImage, findEdgeCustomROI, saveRestoredImage
+from KerrPy.Image.processOpenCV import saveImage, findEdge, saveRestoredImage
 
 from KerrPy.Image.processROI import restoreColorROI
 
@@ -49,7 +51,7 @@ def saveIteration():
     global parent_dir_abs
     
     # read the coordinates
-    coordinates = np.load('coordinates.npy')
+    coordinates = tuple(np.load('coordinates.npy'))
     print(f"coordinates: {coordinates}")  
     
     # read the image
@@ -61,16 +63,16 @@ def saveIteration():
     iter_index = list_iter_index[i]
     exp_index = list_exp_index[i]
     
-    pulse, img_color, customROI = findEdgeCustomROI(coordinates, pulse_index, iter_index, exp_index, img, parent_dir_abs)
+    pulse, img_color, windowROI = findEdge(pulse_index, iter_index, exp_index, img, coordinates=coordinates)
 
     
-    img_restored = restoreColorROI(img_color, img)
+    img_restored = restoreColorROI(img_color, img, windowROI)
     
     # save the restored image to file
-    saveRestoredImage(pulse_index, iter_index, exp_index, img_restored, parent_dir_abs) 
+    saveRestoredImage(pulse_index, iter_index, exp_index, img_restored) 
     
     #save the image to file    
-    saveImage(pulse_index, iter_index, exp_index, img_color, parent_dir_abs)
+    saveImage(pulse_index, iter_index, exp_index, img_color)
     
     i += 1
 

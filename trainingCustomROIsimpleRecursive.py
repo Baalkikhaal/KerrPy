@@ -3,6 +3,9 @@
 Created on Tue Sep 22 14:55:29 2020
 
 @author: fubar
+
+ALERT! before running this script set the samplename to Training
+
 """
 
 import os, os.path
@@ -18,9 +21,9 @@ import cv2
 
 from globalVariables import deep_debug
 
-from KerrPy.Image.processOpenCV import findEdgeCustomROI, saveImage, saveRestoredImage
+from KerrPy.Image.processOpenCV import findEdge, saveImage, saveRestoredImage
 
-from KerrPy.Image.processROI import restoreColorCustomROI
+from KerrPy.Image.processROI import restoreColorROI
 
 from KerrPy.File.processPulse import savePulse
 
@@ -107,13 +110,13 @@ def discardIteration():
     
     
     #save the raw image itself instead of fit    
-    saveImage(pulse_index, iter_index, exp_index, img, parent_dir_abs)
+    saveImage(pulse_index, iter_index, exp_index, img)
     
     # save the raw image itself instead of restored image
-    saveRestoredImage(pulse_index, iter_index, exp_index, img, parent_dir_abs)
+    saveRestoredImage(pulse_index, iter_index, exp_index, img)
     
     # save the params
-    savePulse(pulse_index, iter_index, exp_index, pulse, parent_dir_abs)
+    savePulse(pulse_index, iter_index, exp_index, pulse)
     
     # iterate the counter after the save
     i += 1
@@ -126,7 +129,6 @@ def saveIteration():
     global list_pulse_index
     global list_iter_index
     global list_exp_index
-    global parent_dir_abs
     
     
     # read the pulse
@@ -144,13 +146,13 @@ def saveIteration():
     exp_index = list_exp_index[i]
     
     #save the image to file    
-    saveImage(pulse_index, iter_index, exp_index, img_color, parent_dir_abs)
+    saveImage(pulse_index, iter_index, exp_index, img_color)
     
     # save the restored image to file
-    saveRestoredImage(pulse_index, iter_index, exp_index, img_restored, parent_dir_abs)
+    saveRestoredImage(pulse_index, iter_index, exp_index, img_restored)
     
     # save the params
-    savePulse(pulse_index, iter_index, exp_index, pulse, parent_dir_abs)
+    savePulse(pulse_index, iter_index, exp_index, pulse)
     
     # iterate the counter after the save
     i += 1
@@ -178,7 +180,7 @@ def selectROIrectangle(img):
     fig, axes = plt.subplots(1,3)
     
     
-    fig.suptitle('custom ROI selection', fontsize= 24)
+    fig.suptitle('widget ROI selection', fontsize= 24)
     fig.text(0.5,0.85, '''Press `N' to iterate image, `D' to discard image, `Q' to kill the window''',
              ha='center', va='center')
     axes[0].set_title('raw image')
@@ -233,7 +235,7 @@ def selectROIrectangle(img):
         
     def updateRestoredImage():
         # read the coordinates
-        coordinates = np.load(coordinates_file)
+        coordinates = tuple(np.load(coordinates_file))
         if deep_debug: print(f"coordinates: {coordinates}")  
         
         # read the image
@@ -243,9 +245,9 @@ def selectROIrectangle(img):
         iter_index = list_iter_index[i]
         exp_index = list_exp_index[i]
         
-        pulse, img_color, customROI = findEdgeCustomROI(coordinates, pulse_index, iter_index, exp_index, img, parent_dir_abs)
+        pulse, img_color, windowROI = findEdge(pulse_index, iter_index, exp_index, img, coordinates=coordinates)
     
-        img_restored = restoreColorCustomROI(img_color, img, customROI)
+        img_restored = restoreColorROI(img_color, img, windowROI)
         
         # update the subplot restored image
         
