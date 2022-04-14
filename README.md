@@ -57,3 +57,39 @@ However we will install the default channel version.
 - activate the environments
 
 		conda activate envKerr
+
+## Configuration
+
+- As we need an [interactive backend](https://matplotlib.org/devdocs/users/explain/backends.html) to select a Region of Interest (ROI), Spyder has to be configured to use the Qt5 backend.
+
+	Tools > Preferences > IPython Console > Graphics > Qt5 backend
+
+- Then the first file to configure is the `globalVariables.py`. It has the following categories of parameters
+
+  - Training parameters,
+  - File handling parameters,
+  - Flag parameters,
+  - Matplotlib parameters, and
+  - Image parameters
+  
+These parameters are self-explanatory. For additional information, refer to the adjoining comments.
+
+## Execution
+
+Now run the scripts in the following order
+
+- processDataWithCustomROI.py
+- processFigures.py
+- processVelocity.py
+
+[![ROI-selector-widget](https://i9.ytimg.com/vi/K-mMBQi4r1A/mq1.jpg?sqp=CNC14JIG&rs=AOn4CLB6CWhAw9DpPw_CBzFXrYpRfHwrWQ)](https://youtu.be/K-mMBQi4r1A)
+
+## Output
+
+The output is piped to the `PostProcessing` folder. The ellipse fit(yellow) is shown below along with the inliers (green) and outliers (red).
+
+![ellipse-fit](/PostProcessing/Images/DataSimplifiedCustomROI/Experiment_0/Experiment_0_Iteration_0/Experiment_0_Iteration_0_Pulse_8/Experiment_0_Iteration_0_Pulse_8.png)
+
+The restored image is shown below.
+
+![restored-image](/Restored/DataSimplifiedCustomROI/Experiment_0/Experiment_0_Iteration_0/Experiment_0_Iteration_0_Pulse_8/Experiment_0_Iteration_0_Pulse_8.png)
