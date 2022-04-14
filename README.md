@@ -32,8 +32,11 @@ matplotlib	|	|
 Anaconda maintains "channels" for storing repositories.
 Core packages are available in standard/default channel.
 So can be directly downloaded
-whereas
-opencv is present in "conda-forge" channel.
+~~whereas
+opencv is only present in "conda-forge" channel.~~
+
+> Update: The default channel also provides `opencv`.
+
 conda-forge is a community maintained channel.
 The community is comprised mostly of researchers.
 So we need to add conda-forge channel to the environment.
