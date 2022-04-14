@@ -92,4 +92,4 @@ The output is piped to the `PostProcessing` folder. The ellipse fit(yellow) is s
 
 The restored image is shown below.
 
-![restored-image](/Restored/DataSimplifiedCustomROI/Experiment_0/Experiment_0_Iteration_0/Experiment_0_Iteration_0_Pulse_8/Experiment_0_Iteration_0_Pulse_8.png)
+![restored-image](/PostProcessing/Restored/DataSimplifiedCustomROI/Experiment_0/Experiment_0_Iteration_0/Experiment_0_Iteration_0_Pulse_8/Experiment_0_Iteration_0_Pulse_8.png)
